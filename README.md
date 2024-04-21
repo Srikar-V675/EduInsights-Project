@@ -1,8 +1,7 @@
 # EduInsights-Project
----
 **Introduction:** The Comprehensive Student Performance Dashboard integrates advanced data analysis techniques with automation features to provide educators with a powerful platform for analyzing, visualizing, and forecasting student performance data. By combining a single-page application (SPA) architecture with React.js for the frontend and FastAPI for the backend, this dashboard aims to streamline the process of monitoring student progress and making data-driven decisions to support student success.
 
-**Features:**
+### **Features:**
 
 1. **Automated PDF Extraction:**
     
@@ -37,7 +36,7 @@
     - Generate detailed subject-wise reports for each semester, providing insights into student performance in individual subjects.
     - Allow educators to drill down into specific subjects and analyze performance metrics in detail.
 
-**Tech Stack:**
+### **Tech Stack:**
 
 - **Frontend**: React.js for building dynamic user interfaces and interactive visualizations.
 - **Backend**: FastAPI for handling API requests, data processing, and serving the frontend application.
