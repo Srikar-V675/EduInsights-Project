@@ -17,6 +17,10 @@ from googleapiclient.http import MediaIoBaseDownload
 
 # Authentication functions
 
+# defining credentials file path from environment variable
+credentials_file_path = os.getenv("GOOGLE_API_CREDENTIALS")
+print(credentials_file_path)
+
 # defining scopes for drive and sheets API
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets","https://www.googleapis.com/auth/drive"]
 
