@@ -159,3 +159,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 token.json
+Driver/chromedriver-mac-x64.zip
+Driver/.DS_Store
+Driver/chromedriver-mac-x64/chromedriver
+Driver/chromedriver-mac-x64/LICENSE.chromedriver
