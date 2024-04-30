@@ -1,22 +1,46 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+import json
 
 # calculate the SGPA
-def SGPA(totals, credits):
+def SGPA(totals):
     """
-    Compute the Semester Grade Point Average (SGPA) based on the total marks and credits of subjects.
+    Compute the Semester Grade Point Average (SGPA) based on the total marks of subjects and their respective credits.
 
-    Parameters:
+    Args:
         totals (list): A list of total marks obtained in each subject.
-        credits (list): A list of credits associated with each subject.
 
     Returns:
         float: The calculated SGPA.
 
+    Description:
+        This function calculates the Semester Grade Point Average (SGPA) based on the total marks obtained in each subject
+        and their respective credits. It reads the credits associated with each subject from a JSON file. The JSON file
+        is expected to contain an array of integers representing the credits for each subject in the same order as the
+        subjects appear in the totals list. The function iterates over the total marks and corresponding credits to
+        calculate the grade points for each subject. It then calculates the weighted sum of grade points and divides
+        it by the total credits to obtain the SGPA.
+
+        Note:
+        - The JSON file should contain an array of integers representing the credits for each subject.
+        - The number of credits in the JSON file should match the number of subjects in the totals list.
+        - The function applies the following conversion from total marks to grade points:
+          - 90 and above: 10 grade points
+          - 80-89: 9 grade points
+          - 70-79: 8 grade points
+          - 60-69: 7 grade points
+          - 50-59: 6 grade points
+          - 40-49: 5 grade points
+          - Below 40: No grade points (considered as failing grades)
     """
     sgpa = 0  # Initialize SGPA
     sum_credits = 0  # Initialize total credits
+    
+    # Read credits from JSON file
+    filename = "credits.json"
+    with open(filename, "r") as json_file:
+        credits = json.load(json_file)
     
     # Iterate over total marks and credits simultaneously
     for total, credit in zip(totals, credits):
