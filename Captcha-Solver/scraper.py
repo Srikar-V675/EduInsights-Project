@@ -5,8 +5,9 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException
 import trueCaptcha
+import driver
 
-# Function to solve captcha
+# Function to solve captcha using trueCaptcha
 def solve_captcha(driver):
     """
     Solves the captcha on a webpage using an image-based captcha solver.
@@ -24,12 +25,12 @@ def solve_captcha(driver):
     """
     # Find the captcha image element on the webpage
     div_element = driver.find_element('xpath', '//*[@id="raj"]/div[2]/div[2]/img')
-    
+
     # Take a screenshot of the captcha image
-    div_element.screenshot(r'Captcha-Solver/captcha.png')
-    
+    div_element.screenshot(r'/Users/admin/Documents/Github Repos/EduInsights-Project/Captcha-Solver/captcha.png')
+
     # Solve the captcha using the trueCaptcha solver
-    captcha = trueCaptcha.solve_captcha('Captcha-Solver/captcha.png')
+    captcha = trueCaptcha.solve_captcha('/Users/admin/Documents/Github Repos/EduInsights-Project/Captcha-Solver/captcha.png')
 
     return captcha
 
@@ -57,7 +58,7 @@ def scrape_results(USN, driver):
     while repeat:
         try:
             # Load URL
-            url = 'https://results.vtu.ac.in/JJEcbcs23/index.php'
+            url = 'https://results.vtu.ac.in/DJcbcs24/index.php'
             driver.get(url)
             time.sleep(1)
 
@@ -86,6 +87,7 @@ def scrape_results(USN, driver):
             if EC.alert_is_present()(driver):
                 alert = driver.switch_to.alert
                 if alert.text == "University Seat Number is not available or Invalid..!":
+                    print(alert.text)
                     alert.accept()
                     repeat = False  # Proceed to next USN
                 elif alert.text == "Invalid captcha code !!!":
@@ -146,3 +148,7 @@ def scrape_results(USN, driver):
             repeat = False  # Stop repeating for this USN
 
     return student_data
+
+# driver = driver.initialise_driver()
+# data = scrape_results('1OX22CS105', driver)
+# print(data)
