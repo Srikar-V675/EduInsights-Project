@@ -4,14 +4,14 @@
 ## **Features:**
 
 1. **Automated PDF Extraction:**
-    
+
     - Automatically extract semester marks from PDF reports stored in a designated Google Drive folder.
     - Convert extracted data into a structured format and calculate total marks, percentage, and SGPA for each student.
 2. **Grouped Extractions:**
-    
+
     - Organize extracted data by class or semester, allowing educators to group and access information for specific cohorts.
 3. **Visualizations and Analysis:**
-    
+
     - Generate interactive visualizations and analysis on student performance data, including:
         - Distribution of grades
         - Top-performing students
@@ -19,20 +19,20 @@
         - Subject-wise performance
     - Utilize JavaScript libraries like Plotly.js and D3.js to create dynamic charts and graphs for enhanced visualization.
 4. **Forecasting Next Semester's Results:**
-    
+
     - Implement predictive analytics techniques to forecast students' performance in upcoming semesters based on historical data and trends.
     - Provide educators with insights into potential areas for improvement and opportunities for intervention.
 5. **Student Search and Profile:**
-    
+
     - Enable educators to search for students by roll number or name.
     - Provide a detailed profile for each student, including past semester marks, subject-wise performance, and performance trends.
     - Display a chart of the student's performance over time for quick insights.
 6. **Table View and Filtering:**
-    
+
     - Present extracted results in a tabular format on the website, allowing educators to view and analyze data easily.
     - Implement filtering options to enable educators to filter data based on criteria such as grades, total marks, or subjects.
 7. **Subject-wise Reports:**
-    
+
     - Generate detailed subject-wise reports for each semester, providing insights into student performance in individual subjects.
     - Allow educators to drill down into specific subjects and analyze performance metrics in detail.
 
