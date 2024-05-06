@@ -61,3 +61,46 @@
 `pre-commit clean` -> cleans pre-commit cache
 <br>
 `pre-commit autoupdate` -> updates pre-commit hooks
+
+## Git - Version Control
+
+### Commands
+
+`git init` -> initializes git in project folder
+<br>
+`git add .` -> adds all files to staging area
+<br>
+`git commit -m "<message>"` -> commits changes to local repo
+<br>
+`git remote add origin <remote repo URL>` -> adds remote repo
+<br>
+`git push -u origin master` -> pushes changes to remote repo
+<br>
+`git pull origin master` -> pulls changes from remote repo
+<br>
+`git clone <remote repo URL>` -> clones remote repo to local
+<br>
+`git branch` -> lists all branches
+<br>
+`git checkout -b <branch name>` -> creates new branch
+<br>
+`git checkout <branch name>` -> switches to branch
+<br>
+`git merge <branch name>` -> merges branch to current branch
+<br>
+`git branch -d <branch name>` -> deletes branch
+<br>
+`git push origin --delete <branch name>` -> deletes branch from remote repo
+<br>
+`git log` -> lists all commits
+<br>
+`git reset --hard <commit hash>` -> resets to commit
+<br>
+`git reset --hard HEAD^` -> resets to previous commit
+<br>
+`git tag <tag name>` -> creates tag
+<br>
+`git tag -a <tag name> -m "<message>"` -> creates annotated tag
+<br>
+`git push origin <tag name>` -> pushes tag to remote
+<br>
