@@ -32,6 +32,7 @@ pre-commit = "^3.7.0"
 fastapi2postman = "^0.1.2"
 isort = "^5.13.2"
 pyupgrade = "^3.15.2"
+ruff = "^0.4.3"
 
 [tool.pyright]
 venv = ".venv"
@@ -62,3 +63,31 @@ exclude = '''
   | alembic
 )/
 '''
+
+[tool.ruff]
+line-length = 88
+
+select = ["E", "F", "W"]
+ignore = ["E501"]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "alembic",
+]

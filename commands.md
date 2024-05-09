@@ -24,7 +24,7 @@
 > <br>
 > step 2: go to `alembic.ini` file and update line -> `sqlalchemy.url = <your DB URL>` > <br>
 > step 3: got to `env.py` file inside the alembic folder -> <br>
-> add lines: `from db.db_setup import Base` <br>
+> add lines: `from db.db_setup import Base` and also add all your models ex: `from db.models.user import User` `from db.models.section import Section` ...<br>
 > modify line: `target_metadata = Base.metadata` > <br>
 > step 4: terminal `alembic revision --autogenerate` -> code will be generated if not add lines, if incorrect please modify
 
