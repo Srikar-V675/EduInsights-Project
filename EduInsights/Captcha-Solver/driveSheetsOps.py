@@ -113,9 +113,7 @@ def change_access_permission(spreadsheetId):
         }
 
         # Update permissions for the spreadsheet
-        service.permissions().create(
-            fileId=spreadsheetId, body=permissions
-        ).execute()
+        service.permissions().create(fileId=spreadsheetId, body=permissions).execute()
 
         # Print confirmation message
         print("Spreadsheet permissions updated: anyone with link can edit...")
@@ -149,9 +147,7 @@ def write_to_sheet(service, dataframes, start_rows, spreadsheetId):
 
         # Loop through each DataFrame
         for i in tqdm(range(len(dataframes))):
-            data = dataframes[
-                i
-            ].values.tolist()  # Convert DataFrame to list of lists
+            data = dataframes[i].values.tolist()  # Convert DataFrame to list of lists
 
             # Rename columns if it's the second DataFrame
             if i == 1:

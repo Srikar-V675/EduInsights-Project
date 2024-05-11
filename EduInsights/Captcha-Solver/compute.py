@@ -164,8 +164,6 @@ def grades(students_marks):
             pfa.at[index, "Percentage"] = 100.0
         else:
             total = pfa["Total"].loc[index]
-            pfa.at[index, "Percentage"] = (
-                total / pfa["Total"].loc["Total"]
-            ) * 100
+            pfa.at[index, "Percentage"] = (total / pfa["Total"].loc["Total"]) * 100
 
     return pfa

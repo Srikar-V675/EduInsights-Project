@@ -36,9 +36,7 @@ def initialise_driver():
         options.add_argument(
             "--disable-dev-shm-usage"
         )  # Disable the /dev/shm usage for headless browsing
-        options.add_argument(
-            "--headless"
-        )  # Run Chrome in headless mode (without GUI)
+        options.add_argument("--headless")  # Run Chrome in headless mode (without GUI)
         options.binary_location = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"  # Set the binary location of the Brave Browser
 
         # Launch the Chrome browser with the specified service and options

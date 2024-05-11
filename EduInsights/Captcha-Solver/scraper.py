@@ -25,9 +25,7 @@ def solve_captcha(USN, driver):
         extract the captcha text. The solved captcha string is returned.
     """
     # Find the captcha image element on the webpage
-    div_element = driver.find_element(
-        "xpath", '//*[@id="raj"]/div[2]/div[2]/img'
-    )
+    div_element = driver.find_element("xpath", '//*[@id="raj"]/div[2]/div[2]/img')
 
     # Take a screenshot of the captcha image
     div_element.screenshot(
@@ -83,7 +81,7 @@ def scrape_results(USN, driver):
                 )
                 refresh_button.click()
                 time.sleep(1)
-                captcha = solve_captcha(driver)
+                captcha = solve_captcha(USN, driver)
 
             # Fill USN and captcha fields and submit
             usn_text_field = driver.find_element("name", "lns")
@@ -103,6 +101,7 @@ def scrape_results(USN, driver):
                 ):
                     print(alert.text)
                     alert.accept()
+                    student_data = None
                     repeat = False  # Proceed to next USN
                 elif alert.text == "Invalid captcha code !!!":
                     print("Invalid captcha code for " + USN)
@@ -137,12 +136,7 @@ def scrape_results(USN, driver):
                 num_sub_elements = len(sub_elements)
                 stud_text = stud_element.text
                 usn_text = usn_element.text
-                print(
-                    "Student Name: "
-                    + stud_text
-                    + " | USN: "
-                    + usn_text.upper()
-                )
+                print("Student Name: " + stud_text + " | USN: " + usn_text.upper())
 
                 # Extract marks for each subject
                 marks_list = []
@@ -168,6 +162,8 @@ def scrape_results(USN, driver):
                     }
 
                     marks_list.append(marks_details)
+
+                marks_list.sort(key=lambda x: x["Subject Code"])
 
                 # Construct student data dictionary
                 student_data = {

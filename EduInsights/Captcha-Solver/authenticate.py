@@ -34,9 +34,7 @@ def driveAPI(SCOPES):
 
     # Check if token file exists
     if os.path.exists("token.json"):
-        credentials = Credentials.from_authorized_user_file(
-            "token.json", scopes=SCOPES
-        )
+        credentials = Credentials.from_authorized_user_file("token.json", scopes=SCOPES)
 
     # If credentials are not valid or do not exist, perform authentication
     if not credentials or not credentials.valid:
@@ -82,9 +80,7 @@ def sheetsAPI(SCOPES):
 
     # Check if token file exists
     if os.path.exists("token.json"):
-        credentials = Credentials.from_authorized_user_file(
-            "token.json", scopes=SCOPES
-        )
+        credentials = Credentials.from_authorized_user_file("token.json", scopes=SCOPES)
 
     # If credentials are not valid or do not exist, perform authentication
     if not credentials or not credentials.valid:

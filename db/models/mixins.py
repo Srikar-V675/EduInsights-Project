@@ -1,17 +1,25 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime
+from sqlalchemy import Column, DateTime, func
 from sqlalchemy.orm import declarative_mixin
 
 
-@declarative_mixin  # mixins are used here for having timestamp of created and updated for the rows in db
+@declarative_mixin
 class Timestamp:
+    """
+    A mixin class to add timestamp attributes for database rows.
+
+    Attributes:
+        created_at (DateTime): The timestamp indicating when the row was created.
+        updated_at (DateTime): The timestamp indicating when the row was last updated.
+    """
+
     created_at = Column(
-        DateTime, default=datetime.now(timezone.utc), nullable=False
-    )
+        DateTime, default=func.now(), nullable=False
+    )  # Default value set to the current timestamp when the row is created
     updated_at = Column(
         DateTime,
-        default=datetime.now(timezone.utc),
-        onupdate=datetime.now(timezone.utc),
+        default=func.now(),
+        onupdate=func.now(),
         nullable=False,
-    )
+    )  # Default value set to the current timestamp when the row is updated

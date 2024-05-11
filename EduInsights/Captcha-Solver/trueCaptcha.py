@@ -16,6 +16,6 @@ def solve_captcha(USN, imagePath):
             "mode": "auto",
             "len_str": "6",
         }
-        response = requests.post(url=url, json=data, timeout=2)
+        response = requests.post(url=url, json=data, timeout=5)
         data = response.json()
         return data["result"]

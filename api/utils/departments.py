@@ -1,0 +1,81 @@
+from typing import Optional, Sequence
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from db.models.batch import Batch
+from db.models.department import Department
+from pydantic_schemas.department import DepartmentCreate
+
+
+async def read_departments(db: AsyncSession) -> Sequence[Department]:
+    """
+    Retrieve all departments from the database.
+
+    Args:
+        db (AsyncSession): An asynchronous database session.
+
+    Returns:
+        List[Department]: A sequence of Department objects representing all departments in the database.
+    """
+    async with db.begin():
+        query = select(Department)
+        result = await db.execute(query)
+        departments = result.scalars().all()
+        return departments
+
+
+async def add_department(db: AsyncSession, department: DepartmentCreate) -> Department:
+    """
+    Add a new department to the database.
+
+    Args:
+        db (AsyncSession): An asynchronous database session.
+        department (DepartmentCreate): Data for the new department.
+
+    Returns:
+        Department: The newly added department.
+    """
+    async with db.begin():
+        new_dept = Department(
+            dept_name=department.dept_name, password=department.password
+        )
+        db.add(new_dept)
+        await db.commit()
+        return new_dept
+
+
+async def read_department(db: AsyncSession, dept_id: int) -> Optional[Department]:
+    """
+    Retrieve a department from the database by its ID.
+
+    Args:
+        db (AsyncSession): An asynchronous database session.
+        dept_id (int): The ID of the department to retrieve.
+
+    Returns:
+        Optional[Department]: The retrieved department, if found; otherwise, None.
+    """
+    async with db.begin():
+        query = select(Department).where(Department.dept_id == dept_id)
+        result = await db.execute(query)
+        department = result.scalar_one_or_none()
+        return department
+
+
+async def read_department_batches(db: AsyncSession, dept_id: int) -> Sequence[Batch]:
+    """
+    Retrieve all batches associated with a department from the database.
+
+    Args:
+        db (AsyncSession): An asynchronous database session.
+        dept_id (int): The ID of the department.
+
+    Returns:
+        Sequence[Batch]: A sequence of Batch objects representing all batches associated with the department.
+    """
+    async with db.begin():
+        query = select(Batch).where(Batch.dept_id == dept_id)
+        result = await db.execute(query)
+        batches = result.scalars().all()
+        return batches
