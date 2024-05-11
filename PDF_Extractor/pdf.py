@@ -46,9 +46,7 @@ def extractContent(file):
 
         while not done:
             status, done = downloader.next_chunk()
-            sys.stdout.write(
-                f"Extracting pdf {file['name']}...    Extracted 0%"
-            )
+            sys.stdout.write(f"Extracting pdf {file['name']}...    Extracted 0%")
 
             # Simulate progress bar
             for _ in range(10):
@@ -96,8 +94,6 @@ def extractContent(file):
         if e.resp.status == 404:
             print("Error: File not found...")
         elif e.resp.status == 403:
-            print(
-                "Error: Permission denied. You do not have access to this file..."
-            )
+            print("Error: Permission denied. You do not have access to this file...")
         else:
             print(f"Error: {e}")

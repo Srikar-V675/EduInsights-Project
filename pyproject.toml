@@ -43,7 +43,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-line-length = 79
+line-length = 88
 target-version = ['py37']
 include = '\.pyi?$'
 exclude = '''
@@ -90,4 +90,5 @@ exclude = [
     "node_modules",
     "venv",
     "alembic",
+    "db/models",
 ]

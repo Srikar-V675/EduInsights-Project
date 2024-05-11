@@ -8,12 +8,12 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from db.db_setup import Base
 from db.models.batch import Batch
+from db.models.department import Department
 from db.models.mark import Mark
 from db.models.section import Section
 from db.models.semester import Semester
 from db.models.student import Student
 from db.models.subject import Subject
-from db.models.user import User
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

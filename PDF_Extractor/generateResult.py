@@ -104,14 +104,10 @@ def generate_student_result():
     dataframes = [students_marks, top10, grades]
 
     # Write dataframes to the spreadsheet
-    driveSheetsOps.write_to_sheet(
-        sheets, dataframes, start_rows, spreadsheetId
-    )
+    driveSheetsOps.write_to_sheet(sheets, dataframes, start_rows, spreadsheetId)
 
     # Generate the link to the spreadsheet
-    spreadsheet_link = (
-        f"https://docs.google.com/spreadsheets/d/{spreadsheetId}"
-    )
+    spreadsheet_link = f"https://docs.google.com/spreadsheets/d/{spreadsheetId}"
 
     # Print the link to the spreadsheet
     print(f"You can access the spreadsheet here: {spreadsheet_link}")

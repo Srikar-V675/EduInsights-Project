@@ -4,6 +4,7 @@ import compute
 import pandas as pd
 import scraper
 from driver import initialise_driver
+from tqdm import tqdm
 
 
 def processResults(thread_id, start_usn, end_usn, prefix_usn):
@@ -32,15 +33,20 @@ def processResults(thread_id, start_usn, end_usn, prefix_usn):
     students_marks = pd.DataFrame()
 
     i = 0
-    for usn in range(start_usn, end_usn + 1):
+    for usn in tqdm(range(start_usn, end_usn + 1)):
         if usn > 0 and usn < 10:
             usn = "00" + str(usn)
         elif usn > 9 and usn < 100:
             usn = "0" + str(usn)
+        else:
+            usn = str(usn)
         USN = prefix_usn + usn
 
         # Scrape student details and marks
         student_details = scraper.scrape_results(USN, driver)
+        if student_details is None:
+            continue
+
         student_details = json.loads(student_details)
 
         details = [student_details["USN"], student_details["Name"]]
@@ -48,9 +54,7 @@ def processResults(thread_id, start_usn, end_usn, prefix_usn):
 
         # Ignore if only one or no subjects are present
         if len(sub_marks) == 1 or len(sub_marks) == 0:
-            print(
-                f"Ignoring {details[0]} because He/She must have dropped out"
-            )
+            print(f"Ignoring {details[0]} because He/She must have dropped out")
             continue
 
         details_df.loc[i] = details
