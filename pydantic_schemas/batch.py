@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -30,6 +31,14 @@ class BatchCreate(BatchBase):
     """
 
     pass
+
+
+class BatchUpdate(BaseModel):
+    dept_id: Optional[int]
+    batch_name: Optional[str]
+    batch_year: Optional[str]
+    scheme: Optional[int]
+    num_students: Optional[int]
 
 
 class Batch(BatchBase):

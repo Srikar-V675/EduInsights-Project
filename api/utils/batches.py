@@ -1,10 +1,11 @@
 from typing import Sequence
 
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from db.models.batch import Batch
-from pydantic_schemas.batch import BatchCreate
+from pydantic_schemas.batch import BatchCreate, BatchUpdate
 
 
 async def read_batches(db: AsyncSession) -> Sequence[Batch]:
@@ -64,3 +65,42 @@ async def read_batch(db: AsyncSession, batch_id: int) -> Batch:
         result = await db.execute(query)
         batch = result.scalar_one_or_none()
         return batch
+
+
+async def patch_batch(
+    db: AsyncSession, batch_id: int, batch_data: BatchUpdate
+) -> Batch:
+    # batch = await read_batch(db=db, batch_id=batch_id)
+    async with db.begin():
+        update_data = {}
+        if batch_data.dept_id:
+            update_data["dept_id"] = batch_data.dept_id
+        if batch_data.batch_name:
+            update_data["batch_name"] = batch_data.batch_name
+        if batch_data.batch_year:
+            update_data["batch_year"] = batch_data.batch_year
+        if batch_data.scheme:
+            update_data["scheme"] = batch_data.scheme
+        if batch_data.num_students:
+            update_data["num_students"] = batch_data.num_students
+
+        if update_data:
+            query = (
+                update(Batch).where(Batch.batch_id == batch_id).values(**update_data)
+            )
+            await db.execute(query)
+            await db.commit()
+
+    async with db.begin():
+        query = select(Batch).where(Batch.batch_id == batch_id)
+        result = await db.execute(query)
+        new_batch = result.scalar_one()
+        return new_batch
+
+
+async def remove_batch(db: AsyncSession, batch_id: int) -> Batch:
+    batch = await read_batch(db=db, batch_id=batch_id)
+    async with db.begin():
+        await db.delete(batch)
+        await db.commit()
+    return batch
