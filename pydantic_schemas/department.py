@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -24,6 +25,11 @@ class DepartmentCreate(DepartmentBase):
     """
 
     pass
+
+
+class DepartmentUpdate(BaseModel):
+    dept_name: Optional[int]
+    password: Optional[str]
 
 
 class Department(DepartmentBase):
