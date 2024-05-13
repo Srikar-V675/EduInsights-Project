@@ -61,7 +61,6 @@ async def patch_semester(
     Returns:
         Semester: The updated Semester object.
     """
-    # semester = await read_semester(db=db, sem_id=sem_id)
     async with db.begin():
         update_data = {}
         if semester_data.batch_id:

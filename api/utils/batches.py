@@ -5,6 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from db.models.batch import Batch
+from db.models.section import Section
+from db.models.semester import Semester
 from pydantic_schemas.batch import BatchCreate, BatchUpdate
 
 
@@ -70,7 +72,6 @@ async def read_batch(db: AsyncSession, batch_id: int) -> Batch:
 async def patch_batch(
     db: AsyncSession, batch_id: int, batch_data: BatchUpdate
 ) -> Batch:
-    # batch = await read_batch(db=db, batch_id=batch_id)
     async with db.begin():
         update_data = {}
         if batch_data.dept_id:
@@ -91,11 +92,8 @@ async def patch_batch(
             await db.execute(query)
             await db.commit()
 
-    async with db.begin():
-        query = select(Batch).where(Batch.batch_id == batch_id)
-        result = await db.execute(query)
-        new_batch = result.scalar_one()
-        return new_batch
+    new_batch = await read_batch(db=db, batch_id=batch_id)
+    return new_batch
 
 
 async def remove_batch(db: AsyncSession, batch_id: int) -> Batch:
@@ -104,3 +102,19 @@ async def remove_batch(db: AsyncSession, batch_id: int) -> Batch:
         await db.delete(batch)
         await db.commit()
     return batch
+
+
+async def read_batch_semesters(db: AsyncSession, batch_id: int) -> Sequence[Semester]:
+    async with db.begin():
+        query = select(Semester).where(Semester.batch_id == batch_id)
+        result = await db.execute(query)
+        semesters = result.scalars().all()
+        return semesters
+
+
+async def read_batch_sections(db: AsyncSession, batch_id: int) -> Sequence[Section]:
+    async with db.begin():
+        query = select(Section).where(Section.batch_id == batch_id)
+        result = await db.execute(query)
+        sections = result.scalars().all()
+        return sections

@@ -6,11 +6,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.db_setup import get_db
 from pydantic_schemas.batch import Batch, BatchCreate, BatchUpdate
+from pydantic_schemas.section import Section
+from pydantic_schemas.semester import Semester
 
 from .utils.batches import (
     add_batch,
     patch_batch,
     read_batch,
+    read_batch_sections,
+    read_batch_semesters,
     read_batches,
     remove_batch,
 )
@@ -101,3 +105,21 @@ async def delete_batch(batch_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Batch not found.")
     del_batch = await remove_batch(batch_id=batch_id, db=db)
     return del_batch
+
+
+@router.get("/{batch_id}/semesters", response_model=List[Semester])
+async def get_batch_semesters(batch_id: int, db: AsyncSession = Depends(get_db)):
+    batch = await read_batch(batch_id=batch_id, db=db)
+    if batch is None:
+        raise HTTPException(status_code=404, detail="Batch not found.")
+    semesters = await read_batch_semesters(batch_id=batch_id, db=db)
+    return semesters
+
+
+@router.get("/{batch_id}/sections", response_model=List[Section])
+async def get_batch_sections(batch_id: int, db: AsyncSession = Depends(get_db)):
+    batch = await read_batch(batch_id=batch_id, db=db)
+    if batch is None:
+        raise HTTPException(status_code=404, detail="Batch not found.")
+    sections = await read_batch_sections(batch_id=batch_id, db=db)
+    return sections
