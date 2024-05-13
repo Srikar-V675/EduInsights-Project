@@ -64,7 +64,6 @@ async def patch_department(
         None
     """
     # Read the department from the database
-    # department = await read_department(db=db, dept_id=dept_id)
 
     # Begin a transaction
     async with db.begin():
