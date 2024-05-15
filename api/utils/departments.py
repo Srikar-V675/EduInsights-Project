@@ -36,6 +36,16 @@ async def add_department(db: AsyncSession, department: DepartmentCreate) -> Depa
 
     Returns:
         Department: The newly added department.
+
+    Note:
+        Allowed dept_name's:
+            - 'CSE'
+            - 'ISE'
+            - 'AIML'
+            - 'ECE'
+            - 'EEE'
+            - 'MECH'
+            - 'CIVIL'
     """
     async with db.begin():
         new_dept = Department(
@@ -62,6 +72,16 @@ async def patch_department(
 
     Raises:
         None
+
+    Note:
+        Allowed dept_name's:
+            - 'CSE'
+            - 'ISE'
+            - 'AIML'
+            - 'ECE'
+            - 'EEE'
+            - 'MECH'
+            - 'CIVIL'
     """
     # Read the department from the database
 

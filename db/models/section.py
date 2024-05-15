@@ -2,19 +2,12 @@ import enum
 
 from sqlalchemy import Column, Enum, ForeignKey, Integer
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.sqltypes import String
 
 from ..db_setup import Base
 from .mark import Mark
 from .mixins import Timestamp
 from .student import Student
-
-
-class SectionName(enum.IntEnum):
-    A = 1
-    B = 2
-    C = 3
-    D = 4
-    E = 5
 
 
 class Section(Timestamp, Base):
@@ -37,7 +30,7 @@ class Section(Timestamp, Base):
     batch_id = Column(Integer, ForeignKey("batches.batch_id"), nullable=False)
     # many - one relationship -> batch
     batch = relationship("Batch", back_populates="sections")
-    section = Column(Enum(SectionName), index=True, nullable=False)  # is an enum field
+    section = Column(String(1), index=True, nullable=False)  # is an enum field
     num_students = Column(Integer, nullable=False)
     # avg_sgpa, ... -> add attributes as needed.
 

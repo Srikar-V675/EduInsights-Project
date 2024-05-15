@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 class SectionBase(BaseModel):
@@ -14,8 +14,14 @@ class SectionBase(BaseModel):
     """
 
     batch_id: int
-    section: int
+    section: str
     num_students: int
+
+    @validator("section")
+    def validate_section(cls, v):
+        if not v.isalpha() or len(v) > 1 or not v.isupper():
+            raise ValueError("Section name must be a single alphabet character.")
+        return v
 
 
 class SectionCreate(SectionBase):
@@ -24,8 +30,14 @@ class SectionCreate(SectionBase):
 
 class SectionUpdate(BaseModel):
     batch_id: Optional[int]
-    section: Optional[int]
+    section: Optional[str]
     num_students: Optional[int]
+
+    @validator("section", pre=True, always=True)
+    def validate_section(cls, v):
+        if v and (not v.isalpha() or len(v) > 1 or not v.isupper()):
+            raise ValueError("Section name must be a single alphabet character.")
+        return v
 
 
 class Section(SectionBase):
