@@ -47,6 +47,16 @@ async def create_new_department(
 
     Returns:
         Department: The newly created department.
+
+    Note:
+        Allowed dept_name's:
+            - 'CSE'
+            - 'ISE'
+            - 'AIML'
+            - 'ECE'
+            - 'EEE'
+            - 'MECH'
+            - 'CIVIL'
     """
     return await add_department(db=db, department=department)
 
@@ -89,6 +99,9 @@ async def update_department(
 
     Raises:
         HTTPException: If the department with the given department_id is not found (status code 404).
+
+    Note:
+        Allowed dept_name's: 'CSE', 'ISE', 'AIML', 'ECE', 'EEE', 'MECH', 'CIVIL'
     """
     # Read the department from the database
     dept = await read_department(db=db, dept_id=dept_id)

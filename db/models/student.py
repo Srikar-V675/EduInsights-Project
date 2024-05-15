@@ -49,7 +49,7 @@ class Student(Timestamp, Base):
     # many-one relationship -> section
     section = relationship("Section", back_populates="students")
     stud_name = Column(String(100), index=True, nullable=False)
-    cgpa = Column(Numeric(precision=2, scale=2), default=0.0, nullable=False)
+    cgpa = Column(Numeric(precision=3, scale=1), default=0.0, nullable=False)
     active = Column(Boolean, index=True, default=True, nullable=False)
     current_sem = Column(Integer, index=True, default=1, nullable=False)
     # one - many relationship -> mark

@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
+
+VALID_DEPT_NAMES = {"CSE", "ISE", "AIML", "ECE", "EEE", "MECH", "CIVIL"}
 
 
 class DepartmentBase(BaseModel):
@@ -13,8 +15,26 @@ class DepartmentBase(BaseModel):
         password (str): The password for the department.
     """
 
-    dept_name: int
+    dept_name: str
     password: str
+
+    @validator("dept_name")
+    def validate_dept_name(cls, dept_name: str) -> str:
+        """
+        Validates the department name.
+
+        Args:
+            dept_name (str): The name of the department.
+
+        Returns:
+            str: The validated department name.
+
+        Raises:
+            ValueError: If the department name is not valid.
+        """
+        if dept_name not in VALID_DEPT_NAMES:
+            raise ValueError("Invalid department name")
+        return dept_name
 
 
 class DepartmentCreate(DepartmentBase):
@@ -28,8 +48,26 @@ class DepartmentCreate(DepartmentBase):
 
 
 class DepartmentUpdate(BaseModel):
-    dept_name: Optional[int]
+    dept_name: Optional[str]
     password: Optional[str]
+
+    @validator("dept_name", pre=True, always=True)
+    def validate_dept_name(cls, dept_name: Optional[str]) -> Optional[str]:
+        """
+        Validates the department name.
+
+        Args:
+            dept_name (Optional[str]): The name of the department.
+
+        Returns:
+            Optional[str]: The validated department name.
+
+        Raises:
+            ValueError: If the department name is not valid.
+        """
+        if dept_name and dept_name not in VALID_DEPT_NAMES:
+            raise ValueError("Invalid department name")
+        return dept_name
 
 
 class Department(DepartmentBase):

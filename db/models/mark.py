@@ -1,44 +1,10 @@
 import enum
 
-from sqlalchemy import CheckConstraint, Column, Enum, ForeignKey, Integer
+from sqlalchemy import CheckConstraint, Column, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..db_setup import Base
 from .mixins import Timestamp
-
-
-class Results(enum.IntEnum):
-    """
-    Enumeration representing possible results for a mark.
-
-    Attributes:
-        F (int): Fail result.
-        P (int): Pass result.
-        W (int): Withdrawn result.
-    """
-
-    F = 0
-    P = 1
-    W = 2
-
-
-class Grades(enum.IntEnum):
-    """
-    Enumeration representing possible grades for a mark.
-
-    Attributes:
-        FCD (int): First Class with Distinction.
-        FC (int): First Class.
-        SC (int): Second Class.
-        FAIL (int): Fail grade.
-        ABSENT (int): Absent grade.
-    """
-
-    FCD = 1
-    FC = 2
-    SC = 3
-    FAIL = 4
-    ABSENT = 5
 
 
 class Mark(Timestamp, Base):
@@ -83,5 +49,5 @@ class Mark(Timestamp, Base):
     internal = Column(Integer, index=True, nullable=False)
     external = Column(Integer, index=True, nullable=False)
     total = Column(Integer, index=True, nullable=False)
-    result = Column(Enum(Results), nullable=False)
-    grade = Column(Enum(Grades), nullable=False)
+    result = Column(String(1), nullable=False)
+    grade = Column(String(10), nullable=False)
