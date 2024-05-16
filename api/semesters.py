@@ -12,13 +12,20 @@ from api.utils.semesters import (
     remove_semester,
 )
 from db.db_setup import get_db
-from pydantic_schemas.semester import Semester, SemesterCreate, SemesterUpdate
+from pydantic_schemas.semester import (
+    Semester,
+    SemesterCreate,
+    SemesterQueryParams,
+    SemesterUpdate,
+)
 
 router = fastapi.APIRouter()
 
 
 @router.get("", response_model=List[Semester])
-async def get_semesters(db: AsyncSession = Depends(get_db)):
+async def get_semesters(
+    query_params: SemesterQueryParams = Depends(), db: AsyncSession = Depends(get_db)
+):
     """
     Retrieves all semesters.
 
@@ -28,7 +35,7 @@ async def get_semesters(db: AsyncSession = Depends(get_db)):
     Returns:
         List[Semester]: A list of Semester objects.
     """
-    semesters = await read_semesters(db)
+    semesters = await read_semesters(db, query_params)
     return semesters
 
 

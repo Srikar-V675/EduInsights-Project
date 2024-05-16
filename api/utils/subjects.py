@@ -1,16 +1,26 @@
 from typing import Sequence
 
-from sqlalchemy import update
+from sqlalchemy import and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from db.models.subject import Subject
-from pydantic_schemas.subject import SubjectCreate, SubjectUpdate
+from pydantic_schemas.subject import SubjectCreate, SubjectQueryParams, SubjectUpdate
 
 
-async def read_subjects(db: AsyncSession) -> Sequence[Subject]:
+async def read_subjects(
+    db: AsyncSession,
+    query_params: SubjectQueryParams,
+) -> Sequence[Subject]:
+    filters = []
+    if query_params.sub_code:
+        filters.append(Subject.sub_code == query_params.sub_code)
+    if query_params.sem_id:
+        filters.append(Subject.sem_id == query_params.sem_id)
+    if query_params.sub_name:
+        filters.append(Subject.sub_name == query_params.sub_name)
     async with db.begin():
-        query = select(Subject)
+        query = select(Subject).where(and_(*filters))
         result = await db.execute(query)
         subjects = result.scalars().all()
         return subjects

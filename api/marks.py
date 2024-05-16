@@ -6,15 +6,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.utils.marks import add_mark, patch_mark, read_mark, read_marks, remove_mark
 from db.db_setup import get_db
-from pydantic_schemas.mark import Mark, MarkCreate, MarkUpdate
+from pydantic_schemas.mark import Mark, MarkCreate, MarkQueryParams, MarkUpdate
 
 router = fastapi.APIRouter()
 
 
 # Route to retrieve all marks
 @router.get("", response_model=Sequence[Mark])
-async def get_marks(db: AsyncSession = Depends(get_db)):
-    marks = await read_marks(db)
+async def get_marks(
+    query_params: MarkQueryParams = Depends(), db: AsyncSession = Depends(get_db)
+):
+    marks = await read_marks(db, query_params)
     return marks
 
 

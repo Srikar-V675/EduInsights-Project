@@ -1,14 +1,21 @@
 from typing import Sequence
 
-from sqlalchemy import update
+from sqlalchemy import and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from db.models.semester import Semester
-from pydantic_schemas.semester import SemesterCreate, SemesterUpdate
+from pydantic_schemas.semester import (
+    SemesterCreate,
+    SemesterQueryParams,
+    SemesterUpdate,
+)
 
 
-async def read_semesters(db: AsyncSession) -> Sequence[Semester]:
+async def read_semesters(
+    db: AsyncSession,
+    query_params: SemesterQueryParams,
+) -> Sequence[Semester]:
     """
     Reads all semesters from the database.
 
@@ -18,8 +25,19 @@ async def read_semesters(db: AsyncSession) -> Sequence[Semester]:
     Returns:
         Sequence[Semester]: A sequence of Semester objects.
     """
+    filters = []
+    if query_params.batch_id:
+        filters.append(Semester.batch_id == query_params.batch_id)
+    if query_params.sem_num:
+        filters.append(Semester.sem_num == query_params.sem_num)
+    if query_params.num_subjects:
+        filters.append(Semester.num_subjects == query_params.num_subjects)
+    if query_params.min_subjects:
+        filters.append(Semester.num_subjects >= query_params.min_subjects)
+    if query_params.max_subjects:
+        filters.append(Semester.num_subjects <= query_params.max_subjects)
     async with db.begin():
-        query = select(Semester)
+        query = select(Semester).where(and_(*filters))
         result = await db.execute(query)
         semesters = result.scalars().all()
         return semesters

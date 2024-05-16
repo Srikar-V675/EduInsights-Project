@@ -12,15 +12,22 @@ from api.utils.subjects import (
     remove_subject,
 )
 from db.db_setup import get_db
-from pydantic_schemas.subject import Subject, SubjectCreate, SubjectUpdate
+from pydantic_schemas.subject import (
+    Subject,
+    SubjectCreate,
+    SubjectQueryParams,
+    SubjectUpdate,
+)
 
 router = fastapi.APIRouter()
 
 
 # Route to retrieve all subjects
 @router.get("", response_model=List[Subject])
-async def get_subjects(db: AsyncSession = Depends(get_db)):
-    subjects = await read_subjects(db)
+async def get_subjects(
+    query_params: SubjectQueryParams = Depends(), db: AsyncSession = Depends(get_db)
+):
+    subjects = await read_subjects(db, query_params)
     return subjects
 
 

@@ -1,16 +1,30 @@
 from typing import Sequence
 
-from sqlalchemy import update
+from sqlalchemy import and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from db.models.section import Section
-from pydantic_schemas.section import SectionCreate, SectionUpdate
+from pydantic_schemas.section import SectionCreate, SectionQueryParams, SectionUpdate
 
 
-async def read_sections(db: AsyncSession) -> Sequence[Section]:
+async def read_sections(
+    db: AsyncSession,
+    query_params: SectionQueryParams,
+) -> Sequence[Section]:
+    filters = []
+    if query_params.batch_id:
+        filters.append(Section.batch_id == query_params.batch_id)
+    if query_params.section:
+        filters.append(Section.section == query_params.section)
+    if query_params.num_students:
+        filters.append(Section.num_students == query_params.num_students)
+    if query_params.min_students:
+        filters.append(Section.num_students >= query_params.min_students)
+    if query_params.max_students:
+        filters.append(Section.num_students <= query_params.max_students)
     async with db.begin():
-        query = select(Section)
+        query = select(Section).where(and_(*filters))
         result = await db.execute(query)
         sections = result.scalars().all()
         return sections

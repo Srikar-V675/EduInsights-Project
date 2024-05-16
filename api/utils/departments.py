@@ -4,7 +4,6 @@ from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from db.models.batch import Batch
 from db.models.department import Department
 from pydantic_schemas.department import DepartmentCreate, DepartmentUpdate
 
@@ -150,21 +149,3 @@ async def read_department(db: AsyncSession, dept_id: int) -> Optional[Department
         result = await db.execute(query)
         department = result.scalar_one_or_none()
         return department
-
-
-async def read_department_batches(db: AsyncSession, dept_id: int) -> Sequence[Batch]:
-    """
-    Retrieve all batches associated with a department from the database.
-
-    Args:
-        db (AsyncSession): An asynchronous database session.
-        dept_id (int): The ID of the department.
-
-    Returns:
-        Sequence[Batch]: A sequence of Batch objects representing all batches associated with the department.
-    """
-    async with db.begin():
-        query = select(Batch).where(Batch.dept_id == dept_id)
-        result = await db.execute(query)
-        batches = result.scalars().all()
-        return batches

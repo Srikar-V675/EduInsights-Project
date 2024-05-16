@@ -8,12 +8,10 @@ from api.utils.departments import (
     add_department,
     patch_department,
     read_department,
-    read_department_batches,
     read_departments,
     remove_department,
 )
 from db.db_setup import get_db
-from pydantic_schemas.batch import Batch
 from pydantic_schemas.department import Department, DepartmentCreate, DepartmentUpdate
 
 router = fastapi.APIRouter()
@@ -138,25 +136,3 @@ async def delete_department(dept_id: int, db: AsyncSession = Depends(get_db)):
     # Call the remove_department function to delete the department
     del_dept = await remove_department(db=db, dept_id=dept_id)
     return del_dept
-
-
-@router.get("/{dept_id}/batches", response_model=List[Batch])
-async def get_department_batches(dept_id: int, db: AsyncSession = Depends(get_db)):
-    """
-    Retrieve all batches associated with a department from the database.
-
-    Args:
-        dept_id (int): The ID of the department.
-        db (AsyncSession): An asynchronous database session.
-
-    Returns:
-        List[Batch]: A list of Batch objects representing all batches associated with the department.
-
-    Raises:
-        HTTPException: If the department with the specified ID is not found, raises 404 error.
-    """
-    dept = await read_department(db=db, dept_id=dept_id)
-    if dept is None:
-        raise HTTPException(status_code=404, detail="Department not found.")
-    batches = await read_department_batches(db=db, dept_id=dept_id)
-    return batches

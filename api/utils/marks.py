@@ -1,16 +1,40 @@
 from typing import Sequence
 
-from sqlalchemy import update
+from sqlalchemy import and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from db.models.mark import Mark
-from pydantic_schemas.mark import MarkCreate, MarkUpdate
+from pydantic_schemas.mark import MarkCreate, MarkQueryParams, MarkUpdate
 
 
-async def read_marks(db: AsyncSession) -> Sequence[Mark]:
+async def read_marks(
+    db: AsyncSession,
+    query_params: MarkQueryParams,
+) -> Sequence[Mark]:
+    filters = []
+    if query_params.stud_id:
+        filters.append(Mark.stud_id == query_params.stud_id)
+    if query_params.subject_id:
+        filters.append(Mark.subject_id == query_params.subject_id)
+    if query_params.section_id:
+        filters.append(Mark.section_id == query_params.section_id)
+    if query_params.internal:
+        filters.append(Mark.internal == query_params.internal)
+    if query_params.external:
+        filters.append(Mark.external == query_params.external)
+    if query_params.total:
+        filters.append(Mark.total == query_params.total)
+    if query_params.result:
+        filters.append(Mark.result == query_params.result)
+    if query_params.grade:
+        filters.append(Mark.grade == query_params.grade)
+    if query_params.min_total:
+        filters.append(Mark.total >= query_params.min_total)
+    if query_params.max_total:
+        filters.append(Mark.total <= query_params.max_total)
     async with db.begin():
-        query = select(Mark)
+        query = select(Mark).where(and_(*filters))
         result = await db.execute(query)
         marks = result.scalars().all()
         return marks

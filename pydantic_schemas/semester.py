@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
+from fastapi import Query
 from pydantic import BaseModel
 
 
@@ -27,6 +28,26 @@ class SemesterCreate(SemesterBase):
     """
 
     pass
+
+
+class SemesterQueryParams:
+    def __init__(
+        self,
+        batch_id: Optional[int] = Query(None, description="Batch ID"),
+        sem_num: Optional[int] = Query(None, description="Semester number"),
+        num_subjects: Optional[int] = Query(None, description="Number of subjects"),
+        min_subjects: Optional[int] = Query(
+            None, description="Minimum number of subjects"
+        ),
+        max_subjects: Optional[int] = Query(
+            None, description="Maximum number of subjects"
+        ),
+    ):
+        self.batch_id = batch_id
+        self.sem_num = sem_num
+        self.num_subjects = num_subjects
+        self.min_subjects = min_subjects
+        self.max_subjects = max_subjects
 
 
 class SemesterUpdate(BaseModel):
