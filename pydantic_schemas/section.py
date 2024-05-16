@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
+from fastapi import Query
 from pydantic import BaseModel, validator
 
 
@@ -38,6 +39,26 @@ class SectionUpdate(BaseModel):
         if v and (not v.isalpha() or len(v) > 1 or not v.isupper()):
             raise ValueError("Section name must be a single alphabet character.")
         return v
+
+
+class SectionQueryParams:
+    def __init__(
+        self,
+        batch_id: Optional[int] = Query(None, description="Batch ID"),
+        section: Optional[str] = Query(None, description="Section name"),
+        num_students: Optional[int] = Query(None, description="Number of students"),
+        min_students: Optional[int] = Query(
+            None, description="Minimum number of students"
+        ),
+        max_students: Optional[int] = Query(
+            None, description="Maximum number of students"
+        ),
+    ):
+        self.batch_id = batch_id
+        self.section = section
+        self.num_students = num_students
+        self.min_students = min_students
+        self.max_students = max_students
 
 
 class Section(SectionBase):

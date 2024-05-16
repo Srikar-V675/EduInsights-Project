@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
+from fastapi import Query
 from pydantic import BaseModel, validator
 
 
@@ -52,6 +53,32 @@ class MarkUpdate(BaseModel):
         if v is None or v not in ["FCD", "FC", "SC", "FAIL", "ABSENT"]:
             return "ABSENT"
         return v
+
+
+class MarkQueryParams:
+    def __init__(
+        self,
+        stud_id: Optional[int] = Query(None, description="Student ID"),
+        subject_id: Optional[int] = Query(None, description="Subject ID"),
+        section_id: Optional[int] = Query(None, description="Section ID"),
+        internal: Optional[int] = Query(None, description="Internal marks"),
+        external: Optional[int] = Query(None, description="External marks"),
+        total: Optional[int] = Query(None, description="Total marks"),
+        result: Optional[str] = Query(None, description="Result"),
+        grade: Optional[str] = Query(None, description="Grade"),
+        min_total: Optional[int] = Query(None, description="Minimum total marks"),
+        max_total: Optional[int] = Query(None, description="Maximum total marks"),
+    ):
+        self.stud_id = stud_id
+        self.subject_id = subject_id
+        self.section_id = section_id
+        self.internal = internal
+        self.external = external
+        self.total = total
+        self.result = result.upper() if result else None
+        self.grade = grade.upper() if grade else None
+        self.min_total = min_total
+        self.max_total = max_total
 
 
 class Mark(MarkBase):

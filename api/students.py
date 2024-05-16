@@ -12,15 +12,22 @@ from api.utils.students import (
     remove_student,
 )
 from db.db_setup import get_db
-from pydantic_schemas.student import Student, StudentCreate, StudentUpdate
+from pydantic_schemas.student import (
+    Student,
+    StudentCreate,
+    StudentQueryParams,
+    StudentUpdate,
+)
 
 router = fastapi.APIRouter()
 
 
 # Route to retrieve all students
 @router.get("", response_model=List[Student])
-async def get_students(db: AsyncSession = Depends(get_db)):
-    students = await read_students(db)
+async def get_students(
+    query_params: StudentQueryParams = Depends(), db: AsyncSession = Depends(get_db)
+):
+    students = await read_students(db, query_params)
     return students
 
 

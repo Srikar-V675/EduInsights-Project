@@ -33,7 +33,8 @@ class Batch(Timestamp, Base):
         "Department", back_populates="batches"
     )  # many-to-one relationship with Department
     batch_name = Column(String(50), unique=True, index=True, nullable=False)
-    batch_year = Column(String(9), index=True, nullable=False)
+    batch_start_year = Column(Integer, index=True, nullable=False)
+    batch_end_year = Column(Integer, index=True, nullable=False)
     scheme = Column(Integer, index=True, nullable=False)
     num_students = Column(Integer, default=0, nullable=False)
 

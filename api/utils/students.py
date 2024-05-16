@@ -1,16 +1,38 @@
 from typing import Sequence
 
-from sqlalchemy import update
+from sqlalchemy import and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from db.models.student import Student
-from pydantic_schemas.student import StudentCreate, StudentUpdate
+from pydantic_schemas.student import StudentCreate, StudentQueryParams, StudentUpdate
 
 
-async def read_students(db: AsyncSession) -> Sequence[Student]:
+async def read_students(
+    db: AsyncSession,
+    query_params: StudentQueryParams,
+) -> Sequence[Student]:
+    filters = []
+    if query_params.batch_id:
+        filters.append(Student.batch_id == query_params.batch_id)
+    if query_params.section_id:
+        filters.append(Student.section_id == query_params.section_id)
+    if query_params.current_sem:
+        filters.append(Student.current_sem == query_params.current_sem)
+    if query_params.active is not None:
+        filters.append(Student.active == query_params.active)
+    if query_params.min_cgpa:
+        filters.append(Student.cgpa >= query_params.min_cgpa)
+    if query_params.max_cgpa:
+        filters.append(Student.cgpa <= query_params.max_cgpa)
+    if query_params.cgpa:
+        filters.append(Student.cgpa == query_params.cgpa)
+    if query_params.usn:
+        filters.append(Student.usn == query_params.usn)
+    if query_params.stud_name:
+        filters.append(Student.stud_name == query_params.stud_name)
     async with db.begin():
-        query = select(Student)
+        query = select(Student).where(and_(*filters))
         result = await db.execute(query)
         students = result.scalars().all()
         return students

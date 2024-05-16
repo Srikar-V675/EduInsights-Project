@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
+from fastapi import Query
 from pydantic import BaseModel
 
 
@@ -18,7 +19,8 @@ class BatchBase(BaseModel):
 
     dept_id: int
     batch_name: str
-    batch_year: str
+    batch_start_year: int
+    batch_end_year: int
     scheme: int
     num_students: int
 
@@ -36,9 +38,38 @@ class BatchCreate(BatchBase):
 class BatchUpdate(BaseModel):
     dept_id: Optional[int]
     batch_name: Optional[str]
-    batch_year: Optional[str]
+    batch_start_year: Optional[int]
+    batch_end_year: Optional[int]
     scheme: Optional[int]
     num_students: Optional[int]
+
+
+class BatchQueryParams:
+    def __init__(
+        self,
+        dept_id: Optional[int] = Query(None, description="Department ID"),
+        batch_name: Optional[str] = Query(None, description="Batch name"),
+        batch_start_year: Optional[int] = Query(
+            None, description="Start year of the batch"
+        ),
+        batch_end_year: Optional[int] = Query(
+            None, description="End year of the batch"
+        ),
+        scheme: Optional[int] = Query(None, description="Scheme of the batch"),
+        min_students: Optional[int] = Query(
+            None, description="Minimum number of students"
+        ),
+        max_students: Optional[int] = Query(
+            None, description="Maximum number of students"
+        ),
+    ):
+        self.dept_id = dept_id
+        self.batch_name = batch_name
+        self.batch_start_year = batch_start_year
+        self.batch_end_year = batch_end_year
+        self.scheme = scheme
+        self.min_students = min_students
+        self.max_students = max_students
 
 
 class Batch(BatchBase):

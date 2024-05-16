@@ -1,16 +1,16 @@
 from typing import Sequence
 
-from sqlalchemy import update
+from sqlalchemy import and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from db.models.batch import Batch
-from db.models.section import Section
-from db.models.semester import Semester
-from pydantic_schemas.batch import BatchCreate, BatchUpdate
+from pydantic_schemas.batch import BatchCreate, BatchQueryParams, BatchUpdate
 
 
-async def read_batches(db: AsyncSession) -> Sequence[Batch]:
+async def read_batches(
+    db: AsyncSession, query_params: BatchQueryParams
+) -> Sequence[Batch]:
     """
     Retrieve all batches from the database.
 
@@ -20,8 +20,21 @@ async def read_batches(db: AsyncSession) -> Sequence[Batch]:
     Returns:
         Sequence[Batch]: sequence of batches retrieved of type Batch
     """
+    filters = []
+    if query_params.dept_id:
+        filters.append(Batch.dept_id == query_params.dept_id)
+    if query_params.batch_start_year:
+        filters.append(Batch.batch_start_year >= query_params.batch_start_year)
+    if query_params.batch_end_year:
+        filters.append(Batch.batch_end_year <= query_params.batch_end_year)
+    if query_params.scheme:
+        filters.append(Batch.scheme == query_params.scheme)
+    if query_params.min_students:
+        filters.append(Batch.num_students >= query_params.min_students)
+    if query_params.max_students:
+        filters.append(Batch.num_students <= query_params.max_students)
     async with db.begin():
-        query = select(Batch)
+        query = select(Batch).where(and_(*filters))
         result = await db.execute(query)
         batches = result.scalars().all()
         return batches
@@ -78,8 +91,10 @@ async def patch_batch(
             update_data["dept_id"] = batch_data.dept_id
         if batch_data.batch_name:
             update_data["batch_name"] = batch_data.batch_name
-        if batch_data.batch_year:
-            update_data["batch_year"] = batch_data.batch_year
+        if batch_data.batch_start_year:
+            update_data["batch_year"] = batch_data.batch_start_year
+        if batch_data.batch_end_year:
+            update_data["batch_year"] = batch_data.batch_end_year
         if batch_data.scheme:
             update_data["scheme"] = batch_data.scheme
         if batch_data.num_students:
@@ -102,19 +117,3 @@ async def remove_batch(db: AsyncSession, batch_id: int) -> Batch:
         await db.delete(batch)
         await db.commit()
     return batch
-
-
-async def read_batch_semesters(db: AsyncSession, batch_id: int) -> Sequence[Semester]:
-    async with db.begin():
-        query = select(Semester).where(Semester.batch_id == batch_id)
-        result = await db.execute(query)
-        semesters = result.scalars().all()
-        return semesters
-
-
-async def read_batch_sections(db: AsyncSession, batch_id: int) -> Sequence[Section]:
-    async with db.begin():
-        query = select(Section).where(Section.batch_id == batch_id)
-        result = await db.execute(query)
-        sections = result.scalars().all()
-        return sections

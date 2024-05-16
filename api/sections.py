@@ -12,14 +12,21 @@ from api.utils.sections import (
     remove_section,
 )
 from db.db_setup import get_db
-from pydantic_schemas.section import Section, SectionCreate, SectionUpdate
+from pydantic_schemas.section import (
+    Section,
+    SectionCreate,
+    SectionQueryParams,
+    SectionUpdate,
+)
 
 router = fastapi.APIRouter()
 
 
 # Route to retrieve all sections
 @router.get("", response_model=List[Section])
-async def get_sections(db: AsyncSession = Depends(get_db)):
+async def get_sections(
+    query_params: SectionQueryParams = Depends(), db: AsyncSession = Depends(get_db)
+):
     """
     Retrieve all sections.
 
@@ -29,7 +36,7 @@ async def get_sections(db: AsyncSession = Depends(get_db)):
     Returns:
         List[Section]: A list of Section objects representing all sections in the database.
     """
-    sections = await read_sections(db)
+    sections = await read_sections(db, query_params)
     return sections
 
 
