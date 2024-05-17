@@ -55,8 +55,13 @@ async def add_batch(db: AsyncSession, batch: BatchCreate) -> Batch:
         new_batch = Batch(
             dept_id=batch.dept_id,
             batch_name=batch.batch_name,
-            batch_year=batch.batch_year,
+            batch_start_year=batch.batch_start_year,
+            batch_end_year=batch.batch_end_year,
             scheme=batch.scheme,
+            start_usn=batch.start_usn,
+            end_usn=batch.end_usn,
+            lateral_start_usn=batch.lateral_start_usn,
+            lateral_end_usn=batch.lateral_end_usn,
             num_students=batch.num_students,
         )
         db.add(new_batch)
@@ -99,6 +104,14 @@ async def patch_batch(
             update_data["scheme"] = batch_data.scheme
         if batch_data.num_students:
             update_data["num_students"] = batch_data.num_students
+        if batch_data.start_usn:
+            update_data["start_usn"] = batch_data.start_usn
+        if batch_data.end_usn:
+            update_data["end_usn"] = batch_data.end_usn
+        if batch_data.lateral_start_usn:
+            update_data["lateral_start_usn"] = batch_data.lateral_start_usn
+        if batch_data.lateral_end_usn:
+            update_data["lateral_end_usn"] = batch_data.lateral_end_usn
 
         if update_data:
             query = (

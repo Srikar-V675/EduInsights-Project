@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..db_setup import Base
@@ -26,6 +26,10 @@ class Batch(Timestamp, Base):
     """
 
     __tablename__ = "batches"
+    # Check constraint to ensure start_usn is not equal to end_usn
+    __table_args__ = (
+        CheckConstraint("start_usn != end_usn", name="start_usn_not_equal_end_usn"),
+    )
 
     batch_id = Column(Integer, primary_key=True, index=True)
     dept_id = Column(Integer, ForeignKey("departments.dept_id"), nullable=False)
@@ -36,6 +40,10 @@ class Batch(Timestamp, Base):
     batch_start_year = Column(Integer, index=True, nullable=False)
     batch_end_year = Column(Integer, index=True, nullable=False)
     scheme = Column(Integer, index=True, nullable=False)
+    start_usn = Column(String(10), nullable=False)
+    end_usn = Column(String(10), nullable=False)
+    lateral_start_usn = Column(String(10), nullable=True)
+    lateral_end_usn = Column(String(10), nullable=True)
     num_students = Column(Integer, default=0, nullable=False)
 
     # Define one-to-many relationships with Student, Semester, and Section models

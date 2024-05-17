@@ -59,6 +59,7 @@ async def add_semester(db: AsyncSession, semester: SemesterCreate) -> Semester:
             batch_id=semester.batch_id,
             sem_num=semester.sem_num,
             num_subjects=semester.num_subjects,
+            current=semester.current,
         )
         db.add(new_semester)
         await db.commit()
@@ -87,6 +88,8 @@ async def patch_semester(
             update_data["sem_num"] = semester_data.sem_num
         if semester_data.num_subjects:
             update_data["num_subjects"] = semester_data.num_subjects
+        if semester_data.current:
+            update_data["current"] = semester_data.current
 
         if update_data:
             query = (

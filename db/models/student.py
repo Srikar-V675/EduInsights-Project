@@ -51,6 +51,8 @@ class Student(Timestamp, Base):
     stud_name = Column(String(100), index=True, nullable=False)
     cgpa = Column(Numeric(precision=3, scale=1), default=0.0, nullable=False)
     active = Column(Boolean, index=True, default=True, nullable=False)
-    current_sem = Column(Integer, index=True, default=1, nullable=False)
+    current_sem = Column(Integer, ForeignKey("semesters.sem_id"), nullable=False)
+    # many-one relationship -> semester
+    semester = relationship("Semester", back_populates="students")
     # one - many relationship -> mark
     marks = relationship("Mark", back_populates="student")

@@ -18,6 +18,7 @@ class SemesterBase(BaseModel):
     batch_id: int
     sem_num: int
     num_subjects: int
+    current: bool
 
 
 class SemesterCreate(SemesterBase):
@@ -63,6 +64,7 @@ class SemesterUpdate(BaseModel):
     batch_id: Optional[int]
     sem_num: Optional[int]
     num_subjects: Optional[int]
+    current: Optional[bool]
 
 
 class Semester(SemesterBase):

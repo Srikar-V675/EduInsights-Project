@@ -35,6 +35,10 @@ async def add_section(db: AsyncSession, section: SectionCreate) -> Section:
         new_section = Section(
             batch_id=section.batch_id,
             section=section.section,
+            start_usn=section.start_usn,
+            end_usn=section.end_usn,
+            lateral_start_usn=section.lateral_start_usn,
+            lateral_end_usn=section.lateral_end_usn,
             num_students=section.num_students,
         )
         db.add(new_section)
@@ -61,6 +65,14 @@ async def patch_section(
             update_data["section"] = section_data.section
         if section_data.num_students:
             update_data["num_students"] = section_data.num_students
+        if section_data.start_usn:
+            update_data["start_usn"] = section_data.start_usn
+        if section_data.end_usn:
+            update_data["end_usn"] = section_data.end_usn
+        if section_data.lateral_start_usn:
+            update_data["lateral_start_usn"] = section_data.lateral_start_usn
+        if section_data.lateral_end_usn:
+            update_data["lateral_end_usn"] = section_data.lateral_end_usn
 
         if update_data:
             query = (
