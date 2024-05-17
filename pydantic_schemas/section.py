@@ -16,7 +16,15 @@ class SectionBase(BaseModel):
 
     batch_id: int
     section: str
+    start_usn: str
+    end_usn: str
+    lateral_start_usn: Optional[str]
+    lateral_end_usn: Optional[str]
     num_students: int
+
+    @validator("lateral_start_usn", "lateral_end_usn", pre=True, always=True)
+    def set_optional_fields_to_none(cls, v):
+        return None if v == "" else v
 
     @validator("section")
     def validate_section(cls, v):
@@ -32,6 +40,10 @@ class SectionCreate(SectionBase):
 class SectionUpdate(BaseModel):
     batch_id: Optional[int]
     section: Optional[str]
+    start_usn: Optional[str]
+    end_usn: Optional[str]
+    lateral_start_usn: Optional[str]
+    lateral_end_usn: Optional[str]
     num_students: Optional[int]
 
     @validator("section", pre=True, always=True)

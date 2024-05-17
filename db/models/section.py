@@ -1,6 +1,4 @@
-import enum
-
-from sqlalchemy import Column, Enum, ForeignKey, Integer
+from sqlalchemy import CheckConstraint, Column, Enum, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import String
 
@@ -25,13 +23,21 @@ class Section(Timestamp, Base):
     """
 
     __tablename__ = "sections"
+    # Check constraint to ensure start_usn is not equal to end_usn
+    __table_args__ = (
+        CheckConstraint("start_usn != end_usn", name="start_usn_not_equal_end_usn"),
+    )
 
     section_id = Column(Integer, primary_key=True, index=True)
     batch_id = Column(Integer, ForeignKey("batches.batch_id"), nullable=False)
     # many - one relationship -> batch
     batch = relationship("Batch", back_populates="sections")
     section = Column(String(1), index=True, nullable=False)  # is an enum field
-    num_students = Column(Integer, nullable=False)
+    start_usn = Column(String(10), nullable=False)
+    end_usn = Column(String(10), nullable=False)
+    lateral_start_usn = Column(String(10), nullable=True)
+    lateral_end_usn = Column(String(10), nullable=True)
+    num_students = Column(Integer, default=0, nullable=False)
     # avg_sgpa, ... -> add attributes as needed.
 
     # one-many relationship -> marks

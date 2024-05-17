@@ -22,6 +22,10 @@ class BatchBase(BaseModel):
     batch_start_year: int
     batch_end_year: int
     scheme: int
+    start_usn: str
+    end_usn: str
+    lateral_start_usn: str
+    lateral_end_usn: str
     num_students: int
 
 
@@ -40,6 +44,10 @@ class BatchUpdate(BaseModel):
     batch_name: Optional[str]
     batch_start_year: Optional[int]
     batch_end_year: Optional[int]
+    start_usn: Optional[str]
+    end_usn: Optional[str]
+    lateral_start_usn: Optional[str]
+    lateral_end_usn: Optional[str]
     scheme: Optional[int]
     num_students: Optional[int]
 
