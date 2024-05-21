@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import List
 
 import fastapi
 from fastapi import Depends, HTTPException
@@ -12,7 +12,7 @@ router = fastapi.APIRouter()
 
 
 # Route to retrieve all marks
-@router.get("", response_model=Sequence[Mark])
+@router.get("", response_model=List[Mark])
 async def get_marks(
     query_params: MarkQueryParams = Depends(), db: AsyncSession = Depends(get_db)
 ):

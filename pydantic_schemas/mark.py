@@ -17,7 +17,7 @@ class MarkBase(BaseModel):
 
     @validator("result")
     def validate_result(cls, v):
-        if v not in ["F", "P", "W"]:
+        if v not in ["F", "P", "W", "A"]:
             raise ValueError("Invalid result")
         return v
 
@@ -33,14 +33,14 @@ class MarkCreate(MarkBase):
 
 
 class MarkUpdate(BaseModel):
-    stud_id: Optional[int]
-    subject_id: Optional[int]
-    section_id: Optional[int]
-    internal: Optional[int]
-    external: Optional[int]
-    total: Optional[int]
-    result: Optional[str]
-    grade: Optional[str]
+    stud_id: Optional[int] = None
+    subject_id: Optional[int] = None
+    section_id: Optional[int] = None
+    internal: Optional[int] = None
+    external: Optional[int] = None
+    total: Optional[int] = None
+    result: Optional[str] = None
+    grade: Optional[str] = None
 
     @validator("result", pre=True, always=True)
     def validate_result(cls, v):

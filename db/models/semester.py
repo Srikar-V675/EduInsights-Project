@@ -2,7 +2,10 @@ from sqlalchemy import Boolean, CheckConstraint, Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from ..db_setup import Base
+from .extraction import Extraction
 from .mixins import Timestamp
+from .student import Student
+from .student_performance import StudentPerformance
 from .subject import Subject
 
 
@@ -22,7 +25,9 @@ class Semester(Timestamp, Base):
     __tablename__ = "semesters"
 
     sem_id = Column(Integer, primary_key=True, index=True)
-    batch_id = Column(Integer, ForeignKey("batches.batch_id"), nullable=False)
+    batch_id = Column(
+        Integer, ForeignKey("batches.batch_id", ondelete="CASCADE"), nullable=False
+    )
     # many - one relationship -> batch
     batch = relationship("Batch", back_populates="semesters")
     sem_num = Column(Integer, index=True, nullable=False, default=1)
@@ -30,6 +35,18 @@ class Semester(Timestamp, Base):
     num_subjects = Column(Integer, index=True, nullable=False)
 
     # one-many relationship -> subjects
-    subjects = relationship("Subject", back_populates="semester")
+    subjects = relationship(
+        "Subject", back_populates="semester", cascade="all, delete-orphan"
+    )
     # one - many relationship -> student
-    students = relationship("Student", back_populates="semester")
+    students = relationship(
+        "Student", back_populates="semester", cascade="all, delete-orphan"
+    )
+    # one - many relationship -> student_performance
+    student_performances = relationship(
+        "StudentPerformance", back_populates="semester", cascade="all, delete-orphan"
+    )
+    # one - many relationship -> extraction
+    extractions = relationship(
+        "Extraction", back_populates="semester", cascade="all, delete-orphan"
+    )

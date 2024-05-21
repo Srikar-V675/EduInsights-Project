@@ -9,6 +9,7 @@ class SubjectBase(BaseModel):
     sub_code: str
     sem_id: int
     sub_name: str
+    credits: int
 
 
 class SubjectCreate(SubjectBase):
@@ -19,6 +20,7 @@ class SubjectUpdate(BaseModel):
     sub_code: Optional[str]
     sem_id: Optional[int]
     sub_name: Optional[str]
+    credits: Optional[int]
 
 
 class SubjectQueryParams:

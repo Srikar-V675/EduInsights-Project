@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..db_setup import Base
@@ -23,11 +23,14 @@ class Subject(Timestamp, Base):
 
     subject_id = Column(Integer, primary_key=True, index=True)
     sub_code = Column(String(10), index=True, nullable=False)
-    sem_id = Column(Integer, ForeignKey("semesters.sem_id"), nullable=False)
+    sem_id = Column(
+        Integer, ForeignKey("semesters.sem_id", ondelete="CASCADE"), nullable=False
+    )
     # many - one relationship -> semester
     semester = relationship("Semester", back_populates="subjects")
     sub_name = Column(String(70), index=True, nullable=False)
+    credits = Column(Integer, nullable=False)
     # avg_marks, credits, num_pass,... -> add more as needed.
 
     # one-many relationship -> marks
-    marks = relationship("Mark", back_populates="subject")
+    marks = relationship("Mark", back_populates="subject", cascade="all, delete-orphan")
