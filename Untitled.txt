@@ -1,0 +1,123 @@
+Handling multiple simultaneous requests to the `extract_results` endpoint and preventing a "too many requests" error requires a strategy to manage the rate limits at both the per-request and global levels. Here are some strategies you can implement:
+
+1. **Global Rate Limiting**: Implement a global rate limit for the endpoint to ensure the total number of requests across all users doesn’t exceed the allowed rate.
+
+2. **Per-User Rate Limiting**: Implement per-user rate limits to ensure individual users don’t overwhelm the system with too many requests.
+
+3. **Centralized Throttling and Queueing**: Use a centralized queue system to manage and throttle the requests, ensuring they are processed at a controlled rate.
+
+### Implementing Global and Per-User Rate Limiting in FastAPI
+
+1. **Install Dependencies**:
+   ```bash
+   pip install fastapi-limiter aioredis
+   ```
+
+2. **Setup Redis for Rate Limiting**:
+   FastAPI-Limiter uses Redis to keep track of request counts and time windows.
+
+3. **Update Your FastAPI Application**:
+
+Here’s how you can set up global and per-user rate limiting in your FastAPI application:
+
+```python
+from fastapi import FastAPI, BackgroundTasks, Depends, HTTPException, Request
+from fastapi_limiter import FastAPILimiter
+from fastapi_limiter.depends import RateLimiter
+from sqlalchemy.orm import Session
+from concurrent.futures import ThreadPoolExecutor
+import time
+import requests
+from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
+import aioredis
+
+class TooManyRequestsException(Exception):
+    pass
+
+# Mock function to simulate a scraper that may hit rate limits
+def mock_scraper(usn):
+    response = requests.get(f"https://example.com/data/{usn}")
+    if response.status_code == 429:
+        raise TooManyRequestsException("Too many requests")
+    return response.json()
+
+@retry(
+    retry=retry_if_exception_type(TooManyRequestsException),
+    wait=wait_exponential(min=1, max=60),
+    stop=stop_after_attempt(5)
+)
+def scrape_and_store(section_id: int, usn_subset: list, db: Session):
+    for usn in usn_subset:
+        try:
+            data = mock_scraper(usn)
+            print(f"Stored data for {usn}")
+        except TooManyRequestsException:
+            print(f"Rate limit hit for {usn}, retrying...")
+        time.sleep(1)
+
+# Mock database session and function
+def get_db():
+    pass
+
+class Section:
+    id: int
+    usn_range: list
+
+def generate_usn_range(usn_range):
+    return usn_range
+
+app = FastAPI()
+
+@app.on_event("startup")
+async def startup():
+    redis = await aioredis.create_redis_pool("redis://localhost")
+    await FastAPILimiter.init(redis)
+
+@app.post("/extract/{section_id}", dependencies=[Depends(RateLimiter(times=5, seconds=60))])  # Global rate limit
+async def extract_results(section_id: int, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    section = db.query(Section).filter(Section.id == section_id).first()
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+
+    usn_range = generate_usn_range(section.usn_range)
+
+    num_threads = 4
+    subset_size = len(usn_range) // num_threads
+    usn_subsets = [usn_range[i:i + subset_size] for i in range(0, len(usn_range), subset_size)]
+
+    def process_subsets():
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            futures = [executor.submit(scrape_and_store, section_id, subset, db) for subset in usn_subsets]
+            for future in futures:
+                future.result()
+
+    background_tasks.add_task(process_subsets)
+    return {"message": "Extraction process started"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+```
+
+### Explanation:
+
+1. **Rate Limiting Dependency**:
+   - `RateLimiter(times=5, seconds=60)`: This limits the endpoint to 5 requests per 60 seconds globally. Adjust these values based on your requirements.
+
+2. **FastAPI-Limiter**:
+   - `FastAPILimiter`: This library is used to handle rate limiting in FastAPI. It requires Redis to keep track of the request counts and time windows.
+
+3. **Redis Setup**:
+   - Ensure Redis is running on your system. You can install Redis using package managers like `apt` on Linux, `brew` on macOS, or download directly from the Redis website.
+
+4. **Startup Event**:
+   - During the startup of your FastAPI application, initialize the Redis connection and FastAPI-Limiter.
+
+5. **Background Task Handling**:
+   - The `process_subsets` function manages the multithreading for the usn_subsets, similar to the previous example, with retry logic to handle rate limits.
+
+### Handling Multiple Requests
+
+By implementing the rate limiter, you ensure that the number of requests to the `extract_results` endpoint is controlled. The retry logic with exponential backoff further ensures that if any request encounters a rate limit, it will wait and retry without overwhelming the target server.
+
+For more advanced use cases, consider a distributed task queue system like Celery with Redis or RabbitMQ, which allows better control over task execution and retries.

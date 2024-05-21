@@ -28,5 +28,5 @@ class Department(Timestamp, Base):
 
     # Define one-to-many relationship with Batch model
     batches = relationship(
-        "Batch", back_populates="department"
+        "Batch", back_populates="department", cascade="all, delete-orphan"
     )  # one-to-many relationship with Batch

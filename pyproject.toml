@@ -68,7 +68,7 @@ exclude = '''
 line-length = 88
 
 select = ["E", "F", "W"]
-ignore = ["E501"]
+ignore = ["E501", "E712"]
 exclude = [
     ".bzr",
     ".direnv",

@@ -32,7 +32,9 @@ class Batch(Timestamp, Base):
     )
 
     batch_id = Column(Integer, primary_key=True, index=True)
-    dept_id = Column(Integer, ForeignKey("departments.dept_id"), nullable=False)
+    dept_id = Column(
+        Integer, ForeignKey("departments.dept_id", ondelete="CASCADE"), nullable=False
+    )
     department = relationship(
         "Department", back_populates="batches"
     )  # many-to-one relationship with Department
@@ -48,11 +50,11 @@ class Batch(Timestamp, Base):
 
     # Define one-to-many relationships with Student, Semester, and Section models
     students = relationship(
-        "Student", back_populates="batch"
+        "Student", back_populates="batch", cascade="all, delete-orphan"
     )  # one-to-many relationship with Student
     semesters = relationship(
-        "Semester", back_populates="batch"
+        "Semester", back_populates="batch", cascade="all, delete-orphan"
     )  # one-to-many relationship with Semester
     sections = relationship(
-        "Section", back_populates="batch"
+        "Section", back_populates="batch", cascade="all, delete-orphan"
     )  # one-to-many relationship with Section

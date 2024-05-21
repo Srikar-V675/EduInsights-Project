@@ -20,13 +20,13 @@ class StudentCreate(StudentBase):
 
 
 class StudentUpdate(BaseModel):
-    batch_id: Optional[int]
-    usn: Optional[str]
-    section_id: Optional[int]
-    stud_name: Optional[str]
-    cgpa: Optional[float]
-    active: Optional[bool]
-    current_sem: Optional[int]
+    batch_id: Optional[int] = None
+    usn: Optional[str] = None
+    section_id: Optional[int] = None
+    stud_name: Optional[str] = None
+    cgpa: Optional[float] = None
+    active: Optional[bool] = None
+    current_sem: Optional[int] = None
 
 
 class StudentQueryParams:

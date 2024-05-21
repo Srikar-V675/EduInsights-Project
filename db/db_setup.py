@@ -19,3 +19,7 @@ async def get_db():
     async with AsyncSessionLocal() as db:
         yield db
         await db.commit()
+
+
+async def get_session_factory() -> sessionmaker:
+    return AsyncSessionLocal

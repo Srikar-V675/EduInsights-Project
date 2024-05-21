@@ -40,6 +40,7 @@ async def add_subject(db: AsyncSession, subject: SubjectCreate) -> Subject:
             sub_code=subject.sub_code,
             sem_id=subject.sem_id,
             sub_name=subject.sub_name,
+            credits=subject.credits,
         )
         db.add(new_subject)
         await db.commit()
@@ -57,6 +58,8 @@ async def patch_subject(
             update_data["sem_id"] = subject_data.sem_id
         if subject_data.sub_name:
             update_data["sub_name"] = subject_data.sub_name
+        if subject_data.credits:
+            update_data["credits"] = subject_data.credits
 
         if update_data:
             query = (

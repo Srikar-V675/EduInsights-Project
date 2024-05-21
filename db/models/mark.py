@@ -1,6 +1,4 @@
-import enum
-
-from sqlalchemy import CheckConstraint, Column, Enum, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..db_setup import Base
@@ -34,15 +32,21 @@ class Mark(Timestamp, Base):
     )
 
     mark_id = Column(Integer, primary_key=True, index=True)
-    stud_id = Column(Integer, ForeignKey("students.stud_id"), nullable=False)
+    stud_id = Column(
+        Integer, ForeignKey("students.stud_id", ondelete="CASCADE"), nullable=False
+    )
     student = relationship(
         "Student", back_populates="marks"
     )  # many-to-one relationship with Student
-    subject_id = Column(Integer, ForeignKey("subjects.subject_id"), nullable=False)
+    subject_id = Column(
+        Integer, ForeignKey("subjects.subject_id", ondelete="CASCADE"), nullable=False
+    )
     subject = relationship(
         "Subject", back_populates="marks"
     )  # many-to-one relationship with Subject
-    section_id = Column(Integer, ForeignKey("sections.section_id"), nullable=False)
+    section_id = Column(
+        Integer, ForeignKey("sections.section_id", ondelete="CASCADE"), nullable=False
+    )
     section = relationship(
         "Section", back_populates="marks"
     )  # many-to-one relationship with Section

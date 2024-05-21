@@ -1,6 +1,16 @@
 from fastapi import FastAPI
 
-from api import batches, departments, marks, sections, semesters, students, subjects
+from api import (
+    batches,
+    departments,
+    extractions,
+    marks,
+    sections,
+    semesters,
+    student_performances,
+    students,
+    subjects,
+)
 
 api = FastAPI(
     title="EduInsights API",
@@ -15,3 +25,9 @@ api.include_router(sections.router, prefix="/sections", tags=["Section APIs"])
 api.include_router(subjects.router, prefix="/subjects", tags=["Subject APIs"])
 api.include_router(students.router, prefix="/students", tags=["Student APIs"])
 api.include_router(marks.router, prefix="/marks", tags=["Marks APIs"])
+api.include_router(
+    student_performances.router,
+    prefix="/student-performances",
+    tags=["Student Performance APIs"],
+)
+api.include_router(extractions.router, prefix="/extractions", tags=["Extraction APIs"])

@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import String
 
 from ..db_setup import Base
+from .extraction import Extraction
 from .mark import Mark
 from .mixins import Timestamp
 from .student import Student
@@ -29,7 +30,9 @@ class Section(Timestamp, Base):
     )
 
     section_id = Column(Integer, primary_key=True, index=True)
-    batch_id = Column(Integer, ForeignKey("batches.batch_id"), nullable=False)
+    batch_id = Column(
+        Integer, ForeignKey("batches.batch_id", ondelete="CASCADE"), nullable=False
+    )
     # many - one relationship -> batch
     batch = relationship("Batch", back_populates="sections")
     section = Column(String(1), index=True, nullable=False)  # is an enum field
@@ -41,6 +44,12 @@ class Section(Timestamp, Base):
     # avg_sgpa, ... -> add attributes as needed.
 
     # one-many relationship -> marks
-    marks = relationship("Mark", back_populates="section")
+    marks = relationship("Mark", back_populates="section", cascade="all, delete-orphan")
     # one-many relationship -> students
-    students = relationship("Student", back_populates="section")
+    students = relationship(
+        "Student", back_populates="section", cascade="all, delete-orphan"
+    )
+    # one-many relationship -> extractions
+    extractions = relationship(
+        "Extraction", back_populates="section", cascade="all, delete-orphan"
+    )
