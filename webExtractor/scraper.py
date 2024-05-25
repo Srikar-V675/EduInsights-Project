@@ -33,13 +33,11 @@ def solve_captcha(driver) -> str:
     div_element = driver.find_element("xpath", '//*[@id="raj"]/div[2]/div[2]/img')
 
     # Take a screenshot of the captcha image
-    div_element.screenshot(
-        r"/Users/admin/Documents/Github Repos/EduInsights-Project/webExtractor/captcha.png"
-    )
+    div_element.screenshot(r"/EduInsights/webExtractor/captcha.png")
 
     # Solve the captcha using the trueCaptcha solver
     captcha = trueCaptcha.solve_captcha(
-        "/Users/admin/Documents/Github Repos/EduInsights-Project/webExtractor/captcha.png",
+        "/EduInsights/webExtractor/captcha.png",
     )
 
     return captcha

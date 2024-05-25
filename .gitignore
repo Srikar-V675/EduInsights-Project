@@ -163,3 +163,5 @@ Driver/chromedriver-mac-x64.zip
 Driver/.DS_Store
 Driver/chromedriver-mac-x64/chromedriver
 Driver/chromedriver-mac-x64/LICENSE.chromedriver
+Credentials/OAuth-Credentials.json
+Credentials

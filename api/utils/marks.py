@@ -51,7 +51,7 @@ async def add_mark(db: AsyncSession, mark: MarkCreate) -> Mark:
             total=mark.total,
             result=mark.result,
             grade=mark.grade,
-        )
+        )  # type: ignore
         db.add(new_mark)
         await db.commit()
         return new_mark

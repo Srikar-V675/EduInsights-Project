@@ -17,7 +17,7 @@ from db.models.semester import Semester
 from db.models.student import Student
 from db.models.subject import Subject
 from pydantic_schemas.extraction import ExtractionCreate, ExtractionUpdate
-from pydantic_schemas.mark import MarkCreate, MarkUpdate
+from pydantic_schemas.mark import MarkUpdate
 from pydantic_schemas.student import StudentUpdate
 from webExtractor.driver import initialise_driver
 from webExtractor.scraper import scrape_results
@@ -286,17 +286,17 @@ async def scrape_and_store(
                     await patch_mark(db, existing_mark.mark_id, update_mark)
 
                 else:
-                    new_mark = MarkCreate(
+                    new_mark = Mark(
                         stud_id=stud_id,
                         subject_id=subject_id,  # type: ignore
                         section_id=section_id,
-                        internal=internal,
-                        external=external,
-                        total=total,
+                        internal=int(internal),
+                        external=int(external),
+                        total=int(total),
                         result=result_code,
                         grade=grade,
                     )
-                    new_marks.append(convert_mark_create_to_orm(new_mark))  # noqa
+                    new_marks.append(new_mark)  # noqa
 
             async with db.begin():
                 db.add_all(new_marks)
