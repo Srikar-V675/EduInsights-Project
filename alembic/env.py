@@ -1,6 +1,8 @@
 import asyncio
+import os
 from logging.config import fileConfig
 
+from dotenv import load_dotenv
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
@@ -17,9 +19,23 @@ from db.models.student import Student
 from db.models.student_performance import StudentPerformance
 from db.models.subject import Subject
 
+# Get the absolute path to the directory containing this Python script (alembic folder)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the absolute path to the project root directory (two levels up from the current directory)
+project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+
+# Load environment variables from the .env file located in the project root directory
+dotenv_path = os.path.join(project_root, ".env")
+load_dotenv(dotenv_path)
+
+# Access environment variables
+database_url = os.getenv("DATABASE_URL")
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+config.set_main_option("sqlalchemy.url", database_url)  # type: ignore
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

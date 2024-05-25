@@ -104,3 +104,21 @@
 <br>
 `git push origin <tag name>` -> pushes tag to remote
 <br>
+
+
+## Docker - Containerization
+
+### Commands
+`docker compose build` -> builds docker image
+<br>
+`docker compose up` -> starts docker container
+<br>
+`docker compose down` -> stops docker container
+<br>
+`docker compose ps` -> lists all containers
+<br>
+`docker cp <file_name> <container id>:<destination path>` -> copies files from container to host
+<br>
+`docker-compose up --build` -> builds and starts docker container -> useful when changes are made to dockerfile or project files
+<br>
+`docker prune` -> removes all stopped containers

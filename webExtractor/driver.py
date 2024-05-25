@@ -24,9 +24,7 @@ def initialise_driver():
     """
     try:
         # Set up the WebDriver service using the ChromeDriver executable path
-        service = Service(
-            "/Users/admin/Documents/Github Repos/EduInsights-Project/Driver/chromedriver-mac-x64/chromedriver"
-        )
+        service = Service("/usr/local/bin/chromedriver-linux64/chromedriver")
 
         # Set up ChromeOptions to configure the Chrome browser instance
         options = webdriver.ChromeOptions()
@@ -37,7 +35,7 @@ def initialise_driver():
             "--disable-dev-shm-usage"
         )  # Disable the /dev/shm usage for headless browsing
         options.add_argument("--headless")  # Run Chrome in headless mode (without GUI)
-        options.binary_location = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"  # Set the binary location of the Brave Browser
+        # options.binary_location = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"  # Set the binary location of the Brave Browser
 
         # Launch the Chrome browser with the specified service and options
         driver = webdriver.Chrome(service=service, options=options)

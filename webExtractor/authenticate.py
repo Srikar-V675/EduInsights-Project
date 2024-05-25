@@ -1,10 +1,21 @@
 import os
 
+from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
+# Get the absolute path to the directory containing this Python script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the absolute path to the project root directory (two levels up from the current directory)
+project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+
+# Load environment variables from the .env file located in the project root directory
+dotenv_path = os.path.join(project_root, ".env")
+load_dotenv(dotenv_path)
 
 # defining credentials file path from environment variable
 credentials_file_path = os.getenv("GOOGLE_API_CREDENTIALS")
