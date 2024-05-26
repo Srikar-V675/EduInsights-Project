@@ -27,6 +27,7 @@ services:
 
   api:
     container_name: api
+    image: api
     build:
       context: .
       dockerfile: Dockerfile
@@ -43,12 +44,72 @@ services:
         "--reload",
       ]
     volumes:
-      - .:/EduInsights-Project
-      - /EduInsights-Project/.venv
+      - .:/EduInsights
+      - /EduInsights/.venv
     ports:
       - 8000:8000
     depends_on:
       - db
+    restart: always
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+
+  celery_worker:
+    container_name: celery_worker
+    image: celery_worker_edu
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      [
+        "poetry",
+        "run",
+        "celery",
+        "-A",
+        "celery_worker.celery",
+        "worker",
+        "--loglevel=info",
+      ]
+    volumes:
+      - .:/EduInsights
+      - /EduInsights/.venv
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - api
+      - db
+      - redis
+    restart: always
+
+  flower:
+    container_name: flower
+    image: flower_edu
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      [
+        "poetry",
+        "run",
+        "celery",
+        "-A",
+        "celery_worker.celery",
+        "flower",
+        "--port=5555",
+      ]
+    ports:
+      - 5556:5555
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - api
+      - db
+      - redis
+      - celery_worker
     restart: always
 
 volumes:

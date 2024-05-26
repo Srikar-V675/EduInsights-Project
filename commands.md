@@ -122,3 +122,5 @@
 `docker-compose up --build` -> builds and starts docker container -> useful when changes are made to dockerfile or project files
 <br>
 `docker prune` -> removes all stopped containers
+<br>
+`docker ps -a` -> lists all containers

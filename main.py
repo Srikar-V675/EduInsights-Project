@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import Body, FastAPI
+from fastapi.responses import JSONResponse
 
 from api import (
     batches,
@@ -11,12 +12,23 @@ from api import (
     students,
     subjects,
 )
+from celery_worker import create_task
 
 api = FastAPI(
     title="EduInsights API",
     description="API for managing VTU results, analysis and extraction.",
     version="0.1.0",
 )
+
+
+@api.post("/celery-test")
+def run_task(data=Body(...)):
+    amount = int(data["amount"])
+    x = int(data["x"])
+    y = int(data["y"])
+    task = create_task.delay(amount, x, y)
+    return JSONResponse({"Result": task.get()})
+
 
 api.include_router(departments.router, prefix="/departments", tags=["Department APIs"])
 api.include_router(batches.router, prefix="/batches", tags=["Batch APIs"])
