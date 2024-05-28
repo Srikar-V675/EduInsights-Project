@@ -77,7 +77,7 @@ async def patch_student(
             update_data["stud_name"] = student_data.stud_name
         if student_data.cgpa:
             update_data["cgpa"] = student_data.cgpa
-        if student_data.active:
+        if student_data.active is not None:
             update_data["active"] = student_data.active
         if student_data.current_sem:
             update_data["current_sem"] = student_data.current_sem

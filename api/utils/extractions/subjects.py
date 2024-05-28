@@ -14,6 +14,8 @@ from pydantic_schemas.extraction import IdentifySubjects, SubjectSchema
 from webExtractor.driver import initialise_driver
 from webExtractor.scraper import scrape_results
 
+from .scraper_utils import check_url
+
 
 async def identify_subjects(
     batch_id: int,
@@ -32,6 +34,10 @@ async def identify_subjects(
         >10: 10 + reattempts for invalid captcha
         >20: 20 + reattempts for connection timeout
     """
+
+    if not await check_url(data.result_url):
+        raise HTTPException(status_code=400, detail="Error: Invalid URL")
+
     async with db.begin():
         query = select(Batch.start_usn, Batch.end_usn).where(Batch.batch_id == batch_id)
         result = await db.execute(query)
@@ -87,7 +93,7 @@ async def identify_subjects(
             elif status_code == 3:
                 error = "Connection Timeout"
             elif status_code == 4:
-                error = "DNS resolution failed"
+                error = "Connection Refused"
             elif status_code == 5:
                 error = "Other WebDriverException"
             elif status_code == 6:

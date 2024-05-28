@@ -75,7 +75,7 @@ async def scrape_results(
             1: Invalid USN or non-existent USN
             2: Invalid captcha
             3: Connection Timeout
-            4: DNS resolution failed
+            4: Connection refused
             5: Other WebDriverException
             6: Other Exception
             >10: 10 + reattempts for invalid captcha
@@ -88,7 +88,7 @@ async def scrape_results(
         results. The student's details and marks are extracted, formatted into a dictionary,
         converted to a JSON string, and returned.
     """
-    print("Scraping results for USN:", USN)
+    print("Scraping results for USN:", USN, flush=True)
     invalid_count = 0
     error_count = 0
     refused_count = 0
@@ -97,6 +97,7 @@ async def scrape_results(
         try:
             # Navigate to the VTU results website
             url = str(result_url)
+
             driver.get(url)
 
             # solve the captcha
@@ -129,22 +130,22 @@ async def scrape_results(
                     alert.text
                     == "University Seat Number is not available or Invalid..!"
                 ):
-                    print(f"Invalid USN {USN}")
+                    print(f"Invalid USN {USN}", flush=True)
                     alert.accept()
                     return None, 1
                 elif alert.text == "Invalid captcha code !!!":
-                    print("Invalid captcha code for " + USN)
-                    print("Reattempting for " + USN)
+                    print("Invalid captcha code for " + USN, flush=True)
+                    print("Reattempting for " + USN, flush=True)
                     alert.accept()
                     invalid_count += 1
                     if invalid_count == 3:
                         return None, 2
                     continue
                 elif alert.text == "Please check website after 2 hour !!!":
-                    print("Website cool down...")
+                    print("Website cool down...", flush=True)
                     alert.accept()
-                    print("Reinitialising driver to bypass cool down...")
-                    print("Reattempting after 10sec...")
+                    print("Reinitialising driver to bypass cool down...", flush=True)
+                    print("Reattempting after 10sec...", flush=True)
                     time.sleep(10)
                     driver = initialise_driver()
                     continue
@@ -226,27 +227,24 @@ async def scrape_results(
 
         except WebDriverException as e:
             if "ERR_CONNECTION_TIMED_OUT" in str(e):
-                print("Connection timed out.")
+                print("Connection timed out.", flush=True)
                 error_count += 1
                 if error_count == 3:
                     return None, 3
                 continue
-            elif "ERR_NAME_NOT_RESOLVED" in str(e):
-                print("DNS resolution failed.")
-                return None, 4
             elif "ERR_CONNECTION_REFUSED" in str(e):
-                print("Connection refused.")
+                print("Connection refused.", flush=True)
                 time.sleep(5)
                 driver = initialise_driver()
                 refused_count += 1
                 if refused_count == 3:
-                    return None, 7
+                    return None, 4
                 continue
             else:
                 # Handle other WebDriverExceptions if needed
-                print("WebDriverException:", e)
+                print("WebDriverException:", e, flush=True)
                 return None, 5
         except Exception as e:
             # Handle other exceptions if needed
-            print("Exception:", e)
+            print("Exception:", e, flush=True)
             return None, 6
