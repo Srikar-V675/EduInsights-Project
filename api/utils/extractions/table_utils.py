@@ -5,10 +5,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from db.models.extraction import Extraction
+from db.models.extraction_invalid import ExtractionInvalid
 from pydantic_schemas.extraction import (
     ExtractionCreate,
     ExtractionQueryParams,
     ExtractionUpdate,
+)
+from pydantic_schemas.extraction_invalid import (
+    ExtractionInvalidCreate,
+    ExtractionInvalidUpdate,
 )
 
 
@@ -71,9 +76,6 @@ async def read_extraction(db: AsyncSession, extraction_id: int) -> Extraction:
         return extraction
 
 
-# extraction_lock = asyncio.Lock()
-
-
 async def update_extraction(
     db: AsyncSession,
     extraction_id: int,
@@ -121,3 +123,77 @@ async def delete_extraction(db: AsyncSession, extraction_id: int) -> Extraction:
         await db.delete(extraction)
         await db.commit()
         return extraction
+
+
+async def read_extraction_invalids(db: AsyncSession) -> Sequence[ExtractionInvalid]:
+    async with db.begin():
+        query = select(ExtractionInvalid)
+        result = await db.execute(query)
+        extraction_invalids = result.scalars().all()
+        return extraction_invalids
+
+
+async def add_extraction_invalid(
+    db: AsyncSession, extraction_invalid: ExtractionInvalidCreate
+) -> ExtractionInvalid:
+    async with db.begin():
+        new_extraction_invalid = ExtractionInvalid(
+            extraction_id=extraction_invalid.extraction_id,
+            invalid_usns=extraction_invalid.invalid_usns,
+            captcha_usns=extraction_invalid.captcha_usns,
+            timeout_usns=extraction_invalid.timeout_usns,
+        )  # type: ignore
+        db.add(new_extraction_invalid)
+        await db.commit()
+        return new_extraction_invalid
+
+
+async def read_extraction_invalid(
+    db: AsyncSession, invalid_id: int
+) -> ExtractionInvalid:
+    async with db.begin():
+        query = select(ExtractionInvalid).where(
+            ExtractionInvalid.invalid_id == invalid_id
+        )
+        result = await db.execute(query)
+        extraction_invalid = result.scalars().first()
+        return extraction_invalid
+
+
+async def update_extraction_invalid(
+    db: AsyncSession,
+    invalid_id: int,
+    extraction_invalid_data: ExtractionInvalidUpdate,
+) -> ExtractionInvalid:
+    async with db.begin():
+        update_data = {}
+        if extraction_invalid_data.extraction_id:
+            update_data["extraction_id"] = extraction_invalid_data.extraction_id
+        if extraction_invalid_data.invalid_usns:
+            update_data["invalid_usns"] = extraction_invalid_data.invalid_usns
+        if extraction_invalid_data.captcha_usns:
+            update_data["captcha_usns"] = extraction_invalid_data.captcha_usns
+        if extraction_invalid_data.timeout_usns:
+            update_data["timeout_usns"] = extraction_invalid_data.timeout_usns
+
+        if update_data:
+            query = (
+                update(ExtractionInvalid)
+                .where(ExtractionInvalid.invalid_id == invalid_id)
+                .values(**update_data)
+            )
+            await db.execute(query)
+            await db.commit()
+
+    new_extraction_invalid = await read_extraction_invalid(db, invalid_id)
+    return new_extraction_invalid
+
+
+async def delete_extraction_invalid(
+    db: AsyncSession, invalid_id: int
+) -> ExtractionInvalid:
+    async with db.begin():
+        extraction_invalid = await read_extraction_invalid(db, invalid_id)
+        await db.delete(extraction_invalid)
+        await db.commit()
+        return extraction_invalid

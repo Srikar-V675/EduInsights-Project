@@ -43,6 +43,8 @@ class ExtractionBase(BaseModel):
     total_usns: int
     num_completed: int
     num_invalid: int
+    num_captcha: int
+    num_timeout: int
     reattempts: int
     progress: float
     completed: bool
@@ -60,6 +62,8 @@ class ExtractionUpdate(BaseModel):
     total_usns: Optional[int] = None
     num_completed: Optional[int] = None
     num_invalid: Optional[int] = None
+    num_captcha: Optional[int] = None
+    num_timeout: Optional[int] = None
     reattempts: Optional[int] = None
     progress: Optional[float] = None
     completed: Optional[bool] = None
