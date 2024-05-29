@@ -8,6 +8,7 @@ from pydantic import HttpUrl
 from sqlalchemy.orm import sessionmaker
 
 from pydantic_schemas.extraction import ExtractionCreate
+from pydantic_schemas.extraction_invalid import ExtractionInvalidCreate
 from pydantic_schemas.student import StudentUpdate
 from webExtractor.driver import initialise_driver
 from webExtractor.scraper import scrape_results
@@ -19,7 +20,9 @@ from .scraper_utils import (
     check_get_student,
     check_url,
     create_get_extraction,
+    create_get_extraction_invalid,
     process_marks,
+    update_extraction_invalid_usns,
     update_extraction_progress,
 )
 
@@ -31,7 +34,7 @@ async def scrape_section(
     session_factory: sessionmaker,
 ):
 
-    if not await check_url(result_url):
+    if not await check_url(str(result_url)):
         raise HTTPException(status_code=400, detail="Invalid URL")
 
     section = await check_get_section(section_id, session_factory)
@@ -47,10 +50,12 @@ async def scrape_section(
 
     extraction = ExtractionCreate(
         section_id=section_id,
-        sem_id=semester.sem_id,
+        sem_id=semester.sem_id,  # type: ignore
         total_usns=total_usns,
         num_completed=0,
         num_invalid=0,
+        num_captcha=0,
+        num_timeout=0,
         reattempts=0,
         progress=0.0,
         completed=False,
@@ -60,6 +65,17 @@ async def scrape_section(
 
     extraction_id = await create_get_extraction(extraction, session_factory)
 
+    extraction_invalid = ExtractionInvalidCreate(
+        extraction_id=extraction_id,
+        invalid_usns="",
+        captcha_usns="",
+        timeout_usns="",
+    )
+
+    invalid_id = await create_get_extraction_invalid(
+        extraction_invalid, session_factory
+    )
+
     async def process_subsets():
         await scrape_and_store(
             result_url,
@@ -68,6 +84,7 @@ async def scrape_section(
             section_id,
             semester.sem_id,
             extraction_id,  # type: ignore
+            invalid_id,  # type: ignore
             session_factory,
         )
 
@@ -76,6 +93,7 @@ async def scrape_section(
     return {
         "message": "Scraping in progress",
         "extraction_id": extraction_id,
+        "extraction_invalid_id": invalid_id,
         "start_usn": section.start_usn,
         "end_usn": section.end_usn,
         "number_usns": total_usns,
@@ -89,13 +107,19 @@ async def scrape_and_store(
     section_id: int,
     sem_id: int,
     extraction_id: int,
+    invalid_id: int,
     session_factory: sessionmaker,
 ):
     driver = initialise_driver()
     count = 0
     reattempts = 0
     invalids = 0
+    captchas = 0
+    timeouts = 0
     start_time = time.time()
+    invalid_usns = []
+    captcha_usns = []
+    timeout_usns = []
 
     # Create a new session for this task
     async with session_factory() as db:
@@ -104,6 +128,8 @@ async def scrape_and_store(
                 await update_extraction_progress(
                     count,
                     invalids,
+                    captchas,
+                    timeouts,
                     reattempts,
                     time.time() - start_time,
                     extraction_id,
@@ -113,6 +139,8 @@ async def scrape_and_store(
                 count = 0
                 invalids = 0
                 reattempts = 0
+                captchas = 0
+                timeouts = 0
                 start_time = time.time()
 
             count += 1
@@ -136,14 +164,19 @@ async def scrape_and_store(
             else:
                 if status_code == 1:
                     invalids += 1
+                    invalid_usns.append(usn)
                     student_new = await patch_student(
                         db, student.stud_id, StudentUpdate(active=False)
                     )
                     print("Invalid student active:", student_new.active, flush=True)
                 elif status_code == 2:
                     reattempts += 3
+                    captchas += 1
+                    captcha_usns.append(usn)
                 elif status_code == 3:
                     reattempts += 3
+                    timeouts += 1
+                    timeout_usns.append(usn)
                 elif status_code == 4:
                     reattempts += 3
                 continue
@@ -157,15 +190,27 @@ async def scrape_and_store(
 
             await process_marks(marks, stud_id, section_id, session_factory)
 
+        print("Invalid usns: ", invalid_usns, flush=True)
+
         if count > 0:
             await update_extraction_progress(
                 count,
                 invalids,
+                captchas,
+                timeouts,
                 reattempts,
                 time.time() - start_time,
                 extraction_id,
                 db,
             )
+
+        await update_extraction_invalid_usns(
+            invalid_id,
+            invalid_usns,
+            captcha_usns,
+            timeout_usns,
+            db,
+        )
 
         driver.quit()  # type: ignore
         await asyncio.sleep(1)

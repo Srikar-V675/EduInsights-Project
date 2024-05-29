@@ -35,7 +35,7 @@ async def identify_subjects(
         >20: 20 + reattempts for connection timeout
     """
 
-    if not await check_url(data.result_url):
+    if not await check_url(str(data.result_url)):
         raise HTTPException(status_code=400, detail="Error: Invalid URL")
 
     async with db.begin():

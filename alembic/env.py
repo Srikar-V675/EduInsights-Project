@@ -12,6 +12,7 @@ from db.db_setup import Base
 from db.models.batch import Batch
 from db.models.department import Department
 from db.models.extraction import Extraction
+from db.models.extraction_invalid import ExtractionInvalid
 from db.models.mark import Mark
 from db.models.section import Section
 from db.models.semester import Semester
@@ -21,16 +22,20 @@ from db.models.subject import Subject
 
 # Get the absolute path to the directory containing this Python script (alembic folder)
 current_dir = os.path.dirname(os.path.abspath(__file__))
+print(f"Current directory: {current_dir}", flush=True)
 
 # Get the absolute path to the project root directory (two levels up from the current directory)
-project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+project_root = os.path.abspath(os.path.join(current_dir, ".", ".."))
+print(f"Project root directory: {project_root}", flush=True)
 
 # Load environment variables from the .env file located in the project root directory
 dotenv_path = os.path.join(project_root, ".env")
+print(f"Loading environment variables from: {dotenv_path}", flush=True)
 load_dotenv(dotenv_path)
 
 # Access environment variables
 database_url = os.getenv("DATABASE_URL")
+print(f"DATABASE_URL: {database_url}", flush=True)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

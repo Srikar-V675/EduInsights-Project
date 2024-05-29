@@ -7,16 +7,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from db.models.extraction import Extraction
+from db.models.extraction_invalid import ExtractionInvalid
 from db.models.mark import Mark
 from db.models.section import Section
 from db.models.semester import Semester
 from db.models.student import Student
 from db.models.subject import Subject
 from pydantic_schemas.extraction import ExtractionCreate, ExtractionUpdate
+from pydantic_schemas.extraction_invalid import (
+    ExtractionInvalidCreate,
+    ExtractionInvalidUpdate,
+)
 from pydantic_schemas.mark import MarkUpdate
 
 from ..marks import patch_mark
-from .table_utils import add_extraction, update_extraction
+from .table_utils import (
+    add_extraction,
+    add_extraction_invalid,
+    update_extraction,
+    update_extraction_invalid,
+)
 
 
 async def check_url(
@@ -79,9 +89,25 @@ async def create_get_extraction(
     return extraction_id
 
 
+async def create_get_extraction_invalid(
+    extraction_invalid: ExtractionInvalidCreate,
+    session: sessionmaker,
+) -> int:
+    async with session() as db:
+        new_extraction_invalid = await add_extraction_invalid(db, extraction_invalid)
+        query = select(ExtractionInvalid.invalid_id).where(
+            ExtractionInvalid.invalid_id == new_extraction_invalid.invalid_id
+        )
+        result = await db.execute(query)
+        extraction_invalid_id = result.scalars().first()
+    return extraction_invalid_id
+
+
 async def update_extraction_progress(
     count: int,
-    invalid: int,
+    invalids: int,
+    captchas: int,
+    timeouts: int,
     reattempts: int,
     time_taken: float,
     extraction_id: int,
@@ -92,6 +118,8 @@ async def update_extraction_progress(
             Extraction.total_usns,
             Extraction.num_completed,
             Extraction.num_invalid,
+            Extraction.num_captcha,
+            Extraction.num_timeout,
             Extraction.reattempts,
             Extraction.progress,
             Extraction.time_taken,
@@ -100,7 +128,9 @@ async def update_extraction_progress(
         extraction = result.first()
 
         num_completed = extraction.num_completed + count  # type: ignore
-        num_invalid = extraction.num_invalid + invalid  # type: ignore
+        num_invalid = extraction.num_invalid + invalids  # type: ignore
+        num_captcha = extraction.num_captcha + captchas  # type: ignore
+        num_timeout = extraction.num_timeout + timeouts  # type: ignore
         reattempts = extraction.reattempts + reattempts  # type: ignore
         progress = round((num_completed / extraction.total_usns) * 100, 2)  # type: ignore
         time_taken = float(extraction.time_taken) + time_taken  # type: ignore
@@ -112,6 +142,8 @@ async def update_extraction_progress(
         new_extraction = ExtractionUpdate(
             num_completed=num_completed,
             num_invalid=num_invalid,
+            num_captcha=num_captcha,
+            num_timeout=num_timeout,
             reattempts=reattempts,
             progress=progress,
             completed=completed,
@@ -123,6 +155,48 @@ async def update_extraction_progress(
         )
     await update_extraction(db, extraction_id, new_extraction)
     print(f"Extraction {extraction_id} updated")
+    return True
+
+
+async def update_extraction_invalid_usns(
+    invalid_id: int,
+    invalid_usns: list[str],
+    captcha_usns: list[str],
+    timeout_usns: list[str],
+    db: AsyncSession,
+) -> bool:
+    async with db.begin():
+        query = select(
+            ExtractionInvalid.invalid_usns,
+            ExtractionInvalid.captcha_usns,
+            ExtractionInvalid.timeout_usns,
+        ).where(ExtractionInvalid.invalid_id == invalid_id)
+        result = await db.execute(query)
+        extraction_invalid = result.first()
+
+        invalid_usns_str = ", ".join(invalid_usns)
+        captcha_usns_str = ", ".join(captcha_usns)
+        timeout_usns_str = ", ".join(timeout_usns)
+
+        invalid_usns_str = extraction_invalid.invalid_usns + invalid_usns_str  # type: ignore
+        captcha_usns_str = extraction_invalid.captcha_usns + captcha_usns_str  # type: ignore
+        timeout_usns_str = extraction_invalid.timeout_usns + timeout_usns_str  # type: ignore
+
+        print("Invalid usns: ", invalid_usns_str, flush=True)
+        print("Captcha usns: ", captcha_usns_str, flush=True)
+        print("Timeout usns: ", timeout_usns_str, flush=True)
+
+        new_extraction_invalid = ExtractionInvalidUpdate(
+            invalid_usns=invalid_usns_str,
+            captcha_usns=captcha_usns_str,
+            timeout_usns=timeout_usns_str,
+        )
+    await update_extraction_invalid(db, invalid_id, new_extraction_invalid)
+    print(
+        f"Extraction Invalids: invalid_usns {invalid_usns_str}, captcha_usns {captcha_usns_str}, timeout_usns {timeout_usns_str} updated",
+        flush=True,
+    )
+    print(f"Extraction Invalid {invalid_id} updated", flush=True)
     return True
 
 
