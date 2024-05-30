@@ -97,6 +97,7 @@ async def scrape_results(
         try:
             # Navigate to the VTU results website
             url = str(result_url)
+            # url = result_url
 
             driver.get(url)
 

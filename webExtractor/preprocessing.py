@@ -2,12 +2,12 @@ import json
 
 import compute
 import pandas as pd
-import scraper
 from driver import initialise_driver
+from scraper import scrape_results
 from tqdm import tqdm
 
 
-def processResults(thread_id, start_usn, end_usn, prefix_usn):
+async def processResults(thread_id, start_usn, end_usn, prefix_usn):
     """
     Process the results for a range of USNs.
 
@@ -31,6 +31,7 @@ def processResults(thread_id, start_usn, end_usn, prefix_usn):
     driver = initialise_driver()
     details_df = pd.DataFrame(columns=["USN", "Name"])
     students_marks = pd.DataFrame()
+    result_url = "https://results.vtu.ac.in/JJEcbcs24/index.php"
 
     i = 0
     for usn in tqdm(range(start_usn, end_usn + 1)):
@@ -43,7 +44,7 @@ def processResults(thread_id, start_usn, end_usn, prefix_usn):
         USN = prefix_usn + usn
 
         # Scrape student details and marks
-        student_details = scraper.scrape_results(USN, driver)
+        student_details, code = await scrape_results(USN, result_url, driver)
         if student_details is None:
             continue
 
