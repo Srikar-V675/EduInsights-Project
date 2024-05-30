@@ -7,14 +7,17 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-# Get the absolute path to the directory containing this Python script
+# Get the absolute path to the directory containing this Python script (alembic folder)
 current_dir = os.path.dirname(os.path.abspath(__file__))
+print(f"Current directory: {current_dir}", flush=True)
 
 # Get the absolute path to the project root directory (two levels up from the current directory)
-project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+project_root = os.path.abspath(os.path.join(current_dir, ".", ".."))
+print(f"Project root directory: {project_root}", flush=True)
 
 # Load environment variables from the .env file located in the project root directory
 dotenv_path = os.path.join(project_root, ".env")
+print(f"Loading environment variables from: {dotenv_path}", flush=True)
 load_dotenv(dotenv_path)
 
 # defining credentials file path from environment variable
@@ -117,3 +120,7 @@ def sheetsAPI(SCOPES):
     except HttpError as error:
         # Handle any HTTP errors
         print(error)
+
+
+# Authenticate both drive and sheets API
+driveAPI(SCOPES)

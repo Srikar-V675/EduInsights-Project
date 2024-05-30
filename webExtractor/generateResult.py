@@ -1,3 +1,4 @@
+import asyncio
 import os
 import smtplib
 import threading
@@ -10,6 +11,12 @@ import driveSheetsOps
 
 # import pandas as pd
 import preprocessing
+from pydantic import BaseModel, HttpUrl
+
+
+class url(BaseModel):
+    result_url: HttpUrl
+
 
 # initialise lock to ensure thread safety for results
 lock = threading.Lock()
@@ -99,7 +106,7 @@ def process_thread(thread_id, start_usn, end_usn, prefix_usn, results):
         results.append(result)
 
 
-def generate_student_result():
+async def generate_student_result():
     """
     Generate student results by processing multiple threads.
 
@@ -110,72 +117,10 @@ def generate_student_result():
     start_usn = input("Enter the start USN number: ")
     end_usn = input("Enter the end USN number: ")
     prefix_usn = input("Enter the USN prefix: ")
+
     start_time = time.time()
-    # num_threads = 2
 
-    # old thread logic
-    # # Divide the USN range into chunks for each thread
-    # usn_range_size = (int(end_usn) - int(start_usn)) // num_threads
-    # remainder = (int(end_usn) - int(start_usn)) % num_threads
-    # thread_ranges = [
-    #     (
-    #         int(start_usn) + i * usn_range_size,
-    #         int(start_usn) + (i + 1) * usn_range_size,
-    #     )
-    #     for i in range(num_threads)
-    # ]
-    # thread_ranges[-1] = (
-    #     thread_ranges[-1][0],
-    #     thread_ranges[-1][1] + remainder,
-    # )
-
-    # new thread logic
-    # # Calculate the total number of USNs
-    # total_usns = int(end_usn) - int(start_usn) + 1
-
-    # # Calculate the number of USNs per thread
-    # usns_per_thread = total_usns // num_threads
-
-    # # Calculate the remainder USNs
-    # remainder = total_usns % num_threads
-
-    # # Initialize the start USN for each thread
-    # thread_start_usns = [int(start_usn) + i * usns_per_thread for i in range(num_threads)]
-
-    # # Adjust the start USNs for the threads based on the remainder
-    # for i in range(1, remainder + 1):
-    #     thread_start_usns[i] += i
-
-    # # Create thread ranges
-    # thread_ranges = [
-    #     (thread_start_usns[i], min(thread_start_usns[i] + usns_per_thread - 1, int(end_usn))) for i in range(num_threads)
-    # ]
-
-    # print("Thread Ranges:", thread_ranges)
-
-    # # Create a list to store the results from each thread
-    # results = []
-
-    # # Create and start threads
-    # threads = []
-    # for i, (start, end) in enumerate(thread_ranges):
-    #     thread = threading.Thread(
-    #         target=process_thread,
-    #         args=(i, start, end, prefix_usn, results),
-    #     )
-    #     thread.start()
-    #     threads.append(thread)
-
-    # # Wait for all threads to finish
-    # for thread in threads:
-    #     thread.join()
-
-    # # Combine results from all threads
-    # students_marks = pd.concat(results)
-    # print("Students Marks:")
-    # print(students_marks)
-
-    students_marks = preprocessing.processResults(
+    students_marks = await preprocessing.processResults(
         0, int(start_usn), int(end_usn), prefix_usn
     )
     print("Students Marks:")
@@ -241,4 +186,9 @@ def generate_student_result():
     print(f"Time taken: {time.time() - start_time} seconds")
 
 
-generate_student_result()
+async def main():
+    await generate_student_result()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
