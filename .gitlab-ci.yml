@@ -2,7 +2,7 @@ stages:
   - check
 
 variables:
-  PYTHON_VERSION: "3.x"
+  PYTHON_VERSION: "3.11"
 
 check:
   stage: check
