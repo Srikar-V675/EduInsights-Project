@@ -1,0 +1,17 @@
+stages:
+  - check
+
+variables:
+  PYTHON_VERSION: "3.x"
+
+check:
+  stage: check
+  image: python:$PYTHON_VERSION
+  before_script:
+    - apt-get update
+    - apt-get install -y curl
+    - curl -sSL https://install.python-poetry.org | python -
+  script:
+    - poetry install
+  only:
+    - main
