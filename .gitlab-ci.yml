@@ -1,0 +1,19 @@
+stages:
+  - check
+
+variables:
+  PYTHON_VERSION: "3.10"  # Specify the Python version you need
+
+check:
+  stage: check
+  image: python:$PYTHON_VERSION
+  before_script:
+    - apt-get update
+    - apt-get install -y curl
+    - curl -sSL https://install.python-poetry.org | python3 -
+    - export PATH="$HOME/.local/bin:$PATH"  # Add Poetry to the PATH
+  script:
+    - poetry --version  # Verify Poetry installation
+    - poetry install
+  only:
+    - main
