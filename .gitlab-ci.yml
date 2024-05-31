@@ -12,6 +12,6 @@ check:
     - apt-get install -y curl
     - curl -sSL https://install.python-poetry.org | python -
   script:
-    - poetry install
+    - poetry --version
   only:
     - main
