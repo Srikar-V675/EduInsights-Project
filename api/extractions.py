@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import fastapi
 from fastapi import BackgroundTasks, Depends, HTTPException
@@ -46,10 +46,11 @@ async def scrape_section_results(
     result_url: HttpUrl,
     background_tasks: BackgroundTasks,
     session_factory: sessionmaker = Depends(get_session_factory),
+    sem_id: Optional[int] = None,
 ):
     try:
         message = await scrape_section(
-            section_id, result_url, background_tasks, session_factory
+            section_id, result_url, background_tasks, session_factory, sem_id
         )
         return message
     except HTTPException as e:

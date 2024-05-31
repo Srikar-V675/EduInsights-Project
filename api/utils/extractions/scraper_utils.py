@@ -52,6 +52,8 @@ async def check_get_section(
             Section.num_students,
             Section.start_usn,
             Section.end_usn,
+            Section.lateral_start_usn,
+            Section.lateral_end_usn,
         ).where(Section.section_id == section_id)
         result = await db.execute(query)
         section = result.first()
@@ -218,6 +220,7 @@ async def process_marks(
     marks: dict,
     stud_id: int,
     section_id: int,
+    sem_id: int,
     session: sessionmaker,
 ):
     async with session() as db:
@@ -242,7 +245,7 @@ async def process_marks(
             elif result_code == "A":
                 grade = "ABSENT"
 
-            subject_id = await check_get_subject_id(subject_code, db)
+            subject_id = await check_get_subject_id(subject_code, sem_id, db)
 
             mark_id = await check_mark_exists(stud_id, subject_id, section_id, db)
 
@@ -275,10 +278,16 @@ async def process_marks(
 
 async def check_get_subject_id(
     subject_code: str,
+    sem_id: int,
     db: AsyncSession,
 ) -> int:
     async with db.begin():
-        query = select(Subject.subject_id).where(Subject.sub_code == subject_code)
+        query = select(Subject.subject_id).where(
+            and_(
+                Subject.sub_code == subject_code,
+                Subject.sem_id == sem_id,
+            )
+        )
         result = await db.execute(query)
         subject_id = result.scalar()
     return subject_id

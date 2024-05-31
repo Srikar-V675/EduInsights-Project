@@ -1,7 +1,7 @@
 import asyncio
 import json
 import time
-from typing import List
+from typing import List, Optional
 
 from fastapi import BackgroundTasks, HTTPException
 from pydantic import HttpUrl
@@ -32,6 +32,7 @@ async def scrape_section(
     result_url: HttpUrl,
     background_tasks: BackgroundTasks,
     session_factory: sessionmaker,
+    sem_id: Optional[int] = None,
 ):
 
     if not await check_url(str(result_url)):
@@ -39,14 +40,25 @@ async def scrape_section(
 
     section = await check_get_section(section_id, session_factory)
 
-    semester = await check_get_semester(section.batch_id, session_factory)
+    if sem_id is None:
+        semester = await check_get_semester(section.batch_id, session_factory)
+        sem_id = semester.sem_id  # type: ignore
 
     prefix_usn = section.start_usn[:7]
-    start_usn = int(section.start_usn[7:])
-    end_usn = int(section.end_usn[7:])
-
+    start_usn = int(section.start_usn[7:])  # type: ignore
+    end_usn = int(section.end_usn[7:])  # type: ignore
     total_usns = end_usn - start_usn + 1
     usns = [usn for usn in range(start_usn, end_usn + 1)]
+
+    usns_lat = None
+
+    if section.lateral_start_usn is not None and section.lateral_end_usn is not None:
+        prefix_usn_lat = section.lateral_start_usn[:7]
+        start_usn_lat = int(section.lateral_start_usn[7:])  # type: ignore
+        end_usn_lat = int(section.lateral_end_usn[7:])  # type: ignore
+
+        total_usns += end_usn_lat - start_usn_lat + 1
+        usns_lat = [usn for usn in range(start_usn_lat, end_usn_lat + 1)]
 
     extraction = ExtractionCreate(
         section_id=section_id,
@@ -79,14 +91,25 @@ async def scrape_section(
     async def process_subsets():
         await scrape_and_store(
             result_url,
-            prefix_usn,
+            prefix_usn,  # type: ignore
             usns,
             section_id,
-            semester.sem_id,
+            sem_id,  # type: ignore
             extraction_id,  # type: ignore
             invalid_id,  # type: ignore
             session_factory,
         )
+        if usns_lat:
+            await scrape_and_store(
+                result_url,
+                prefix_usn_lat,  # type: ignore
+                usns_lat,
+                section_id,
+                sem_id,  # type: ignore
+                extraction_id,  # type: ignore
+                invalid_id,  # type: ignore
+                session_factory,
+            )
 
     background_tasks.add_task(process_subsets)
 
@@ -150,6 +173,7 @@ async def scrape_and_store(
 
             if student and not student.active:
                 invalids += 1
+                invalid_usns.append(usn)
                 continue
 
             stud_id = student.stud_id  # type: ignore
@@ -188,7 +212,7 @@ async def scrape_and_store(
             if student.stud_name != stud_name[1:]:  # type: ignore
                 await patch_student(db, student.stud_id, StudentUpdate(stud_name=stud_name[1:]))  # type: ignore
 
-            await process_marks(marks, stud_id, section_id, session_factory)
+            await process_marks(marks, stud_id, section_id, sem_id, session_factory)
 
         print("Invalid usns: ", invalid_usns, flush=True)
 
